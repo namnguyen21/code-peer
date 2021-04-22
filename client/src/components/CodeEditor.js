@@ -1,61 +1,66 @@
 import { useState, useEffect, useRef } from "react";
-import Prism from "prismjs";
+import { Controlled as CodeMirror } from "react-codemirror2";
+import "codemirror/lib/codemirror.css";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/addon/edit/matchbrackets";
+import "codemirror/addon/edit/closebrackets";
+import * as Y from "yjs";
+import { WebsocketProvider } from "y-websocket";
+import { CodemirrorBinding } from "y-codemirror";
+//import io from "socket.io-client";
 import "./CodeEditor.css";
 
-const brackets = {
-    '{': '}',
-    '(': ')',
-    '[':']'
-}
+const ENDPOINT = "ws://localhost:3001";
 
 export default function CodeEditor() {
-  const [content, setContent] = useState("");
-  const [start, setStart] = useState(0);
-  const [isTab, setIsTab] = useState(false);
-  const textAreaRef = useRef();
+  const [editorValue, setEditorValue] = useState("");
+  const socketRef = useRef();
+  const editorRef = useRef();
 
-  const handleKeyDown = (evt) => {
-    const {selectionStart} = evt.currentTarget
-
-    let value = content;
-    //handle 4-space indent on
-    if (evt.key === "Tab") {
-      console.log(true);
-
-      evt.preventDefault();
-      value = value.substring(0, selectionStart) + `\t` + value.substring(selectionStart);
-      setIsTab(true);
-    } else {
-      if (isTab) setIsTab(false);
-    }
-
-    if (brackets[evt.key]) {
-        value = value.substring(0, selectionStart) + evt.key + brackets[evt.key] + value.substring(selectionStart)
-    }
-
-    setContent(value);
-    setStart(selectionStart);
-  };
+  // useEffect(() => {
+  //   socketRef.current = new WebSocket(ENDPOINT);
+  //   socketRef.current.addEventListener("open", () => {
+  //     console.log("connection opened");
+  //   });
+  // }, []);
 
   useEffect(() => {
-    Prism.highlightAll();
-    if (isTab) {
-      textAreaRef.current.selectionStart = textAreaRef.current.selectionEnd =
-        start + 1;
-    }
-  }, [content, isTab]);
+    console.log(editorRef.current);
+    const ydoc = new Y.Doc();
+    const provider = new WebsocketProvider(ENDPOINT, "", ydoc);
+    const yText = ydoc.getText("codemirror");
+    console.log(yText);
+    const binding = new CodemirrorBinding(
+      yText,
+      editorRef.current,
+      provider.awareness
+    );
+    // return () => {
+    //   binding.destroy();
+    //   provider.destroy();
+    // };
+  }, []);
+
+  function handleChange(editor, data, value) {
+    setEditorValue(value);
+  }
+
   return (
     <div className="code-container">
-      <textarea
-        ref={textAreaRef}
-        className="code-input"
-        onKeyDown={handleKeyDown}
-        onChange={(e) => setContent(e.target.value)}
-        value={content}
+      <CodeMirror
+        editorDidMount={(editor) => (editorRef.current = editor)}
+        value={editorValue}
+        onBeforeChange={(editor, data, value) =>
+          handleChange(editor, data, value)
+        }
+        //onChange={(editor, data, value) => handleChange(editor, data, value)}
+        options={{
+          mode: "javascript",
+          lineNumbers: true,
+          autoCloseBrackets: true,
+          matchBrackets: true,
+        }}
       />
-      <pre className="language-javascript code-display">
-        <code className="language-javascript">{content}</code>
-      </pre>
     </div>
   );
 }
