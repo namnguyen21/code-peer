@@ -5,7 +5,7 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/edit/matchbrackets";
 import "codemirror/addon/edit/closebrackets";
 import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
+import { WebrtcProvider } from "y-webrtc";
 import { CodemirrorBinding } from "y-codemirror";
 //import io from "socket.io-client";
 import "./CodeEditor.css";
@@ -17,24 +17,38 @@ export default function CodeEditor() {
   const socketRef = useRef();
   const editorRef = useRef();
 
-  // useEffect(() => {
-  //   socketRef.current = new WebSocket(ENDPOINT);
-  //   socketRef.current.addEventListener("open", () => {
-  //     console.log("connection opened");
-  //   });
-  // }, []);
+  useEffect(() => {
+    socketRef.current = new WebSocket(ENDPOINT);
+    socketRef.current.addEventListener("open", () => {});
+  }, []);
 
   useEffect(() => {
     console.log(editorRef.current);
     const ydoc = new Y.Doc();
-    const provider = new WebsocketProvider(ENDPOINT, "", ydoc);
+    const provider = new WebrtcProvider("peer-code-123", ydoc, {
+      signaling: ["wss://y-webrtc-signaling-us.herokuapp.com"],
+    });
+    provider.awareness.setLocalStateField("user", {
+      name: "nam",
+    });
     const yText = ydoc.getText("codemirror");
-    console.log(yText);
     const binding = new CodemirrorBinding(
       yText,
       editorRef.current,
       provider.awareness
     );
+    // const provider = new WebsocketProvider(ENDPOINT, "", ydoc);
+    // provider.awareness.setLocalStateField("user", {
+    //   name: "Nam",
+    //   color: "",
+    // });
+    // const yText = ydoc.getText("codemirror");
+    // console.log(yText);
+    // const binding = new CodemirrorBinding(
+    //   yText,
+    //   editorRef.current,
+    //   provider.awareness
+    // );
     // return () => {
     //   binding.destroy();
     //   provider.destroy();

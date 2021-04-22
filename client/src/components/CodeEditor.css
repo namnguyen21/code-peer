@@ -1,33 +1,6 @@
-.code-container {
-    height: 500px;
-    width: 1000px;
-    background-color: white;
-    position: relative;
-}
-
-.code-input, .code-display {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    outline: none;
-    white-space: pre-wrap;
-    background: transparent;
-    word-wrap: break-word;
-    font-size: 16px;
-    tab-size: 4;
-
-}
-
-.code-input {
-    opacity: 1;
-}
-
-.code-display {
-    z-index: 3;
-    pointer-events: none;
+.remote-caret {
+  position: absolute;
+  margin-left: 5px;
+  display: inline;
+  opacity: 0.6;
 }
