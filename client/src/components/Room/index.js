@@ -7,6 +7,7 @@ import useInput from "../../hooks/useInput";
 
 export default function Index() {
   const { id: roomId } = useParams();
+  const socketRef = useRef();
   const [hasJoined, setHasJoined] = useState(false);
   const name = useInput("");
 
@@ -32,7 +33,7 @@ export default function Index() {
   return (
     <div>
       <CodeEditor roomId={roomId} name={name.value}></CodeEditor>
-      <VoiceAndVideo hasJoined={hasJoined} name={name.value} roomId={roomId} />
+      <VoiceAndVideo socketRef={socketRef} hasJoined={hasJoined} name={name.value} roomId={roomId} />
     </div>
   );
 }

@@ -5,13 +5,12 @@ import { useState, useRef, useEffect } from "react";
 import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 import Audio from "./Audio";
 
-export default function VoiceAndVideo({ hasJoined, name, roomId }) {
-  const socketRef = useRef();
+export default function VoiceAndVideo({ hasJoined, name, roomId, socketRef }) {
   const myPeer = useRef();
   const myPeerId = useRef();
   const [myAudioStream, setMyAudioStream] = useState();
   const [myVideoStream, setMyVideoStream] = useState();
-  const [peerAudioStreams, setPeerAudioStreams] = useState([]);
+  const [peerAudioStreams, setPeerAudioStreams] = useState({});
   const [peerVideoStreams, setPeerVideoStreams] = useState([]);
 
   useEffect(() => {
@@ -99,10 +98,15 @@ export default function VoiceAndVideo({ hasJoined, name, roomId }) {
         console.log(err);
       });
       audioCall.on("stream", (otherStream) => {
-        setPeerAudioStreams((streams) => [
-          ...streams,
-          { id: peerId, stream: otherStream },
-        ]);
+        setPeerAudioStreams((streams) => {
+          const newState = { ...streams };
+          newState[peerId] = {
+            id: peerId,
+            name: peerName,
+            stream: otherStream,
+          };
+          return newState;
+        });
       });
     }
     if (type === "video") {
@@ -117,10 +121,15 @@ export default function VoiceAndVideo({ hasJoined, name, roomId }) {
         console.log(err);
       });
       videoCall.on("stream", (otherStream) => {
-        setPeerVideoStreams((streams) => [
-          ...streams,
-          { id: peerId, name: peerName, stream: otherStream },
-        ]);
+        setPeerVideoStreams((streams) => {
+          const newState = { ...streams };
+          newState[peerId] = {
+            id: peerId,
+            name: peerName,
+            stream: otherStream,
+          };
+          return newState;
+        });
       });
     }
   }
@@ -129,27 +138,38 @@ export default function VoiceAndVideo({ hasJoined, name, roomId }) {
     if (type === "audio") {
       call.answer(myAudioStream);
       call.on("stream", (incomingStream) => {
-        setPeerAudioStreams((streams) => [
-          ...streams,
-          { id: callerId, name: callerName, stream: incomingStream },
-        ]);
+        setPeerAudioStreams((streams) => {
+          const newState = { ...streams };
+          newState[callerId] = {
+            id: callerId,
+            name: callerName,
+            stream: incomingStream,
+          };
+          return newState;
+        });
       });
     }
     if (type === "video") {
       call.answer(myVideoStream);
       call.on("stream", (incomingStream) => {
-        setPeerVideoStreams((streams) => [
-          ...streams,
-          { id: callerId, name: callerName, stream: incomingStream },
-        ]);
+        setPeerVideoStreams((streams) => {
+          const newState = { ...streams };
+          newState[callerId] = {
+            id: callerId,
+            name: callerName,
+            stream: incomingStream,
+          };
+          return newState;
+        });
       });
     }
   }
   function renderPeerAudio() {
-    if (peerAudioStreams.length === 0) return null;
-    return peerAudioStreams.map((p, i) => {
-      return <Audio key={i} stream={p.stream} />;
-    });
+    const peerAudioKeys = Object.keys(peerAudioStreams);
+    if (peerAudioKeys.length === 0) return null;
+    return peerAudioKeys.map((id, i) => (
+      <Audio key={i} stream={peerAudioStreams[id].stream} />
+    ));
   }
   return (
     <div>
