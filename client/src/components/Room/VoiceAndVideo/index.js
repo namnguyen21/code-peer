@@ -1,0 +1,163 @@
+import io from "socket.io-client";
+import Peer from "peerjs";
+import { useState, useRef, useEffect } from "react";
+
+import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
+import Audio from "./Audio";
+
+export default function VoiceAndVideo({ hasJoined, name, roomId }) {
+  const socketRef = useRef();
+  const myPeer = useRef();
+  const myPeerId = useRef();
+  const [myAudioStream, setMyAudioStream] = useState();
+  const [myVideoStream, setMyVideoStream] = useState();
+  const [peerAudioStreams, setPeerAudioStreams] = useState([]);
+  const [peerVideoStreams, setPeerVideoStreams] = useState([]);
+
+  useEffect(() => {
+    if (!hasJoined) return;
+    async function getMediaStreams() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      let hasAudio = false;
+      let hasVideo = false;
+
+      devices.forEach((d) => {
+        if (d.kind === "audioinput") hasAudio = true;
+        if (d.kind === "videoinput") hasVideo = true;
+      });
+      try {
+        if (hasVideo && hasAudio) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          const audio = new MediaStream(stream.getAudioTracks());
+          const video = new MediaStream(stream.getVideoTracks());
+          setMyAudioStream(audio);
+          setMyVideoStream(video);
+        } else if (hasAudio && !hasVideo) {
+          const audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          setMyAudioStream(audioStream);
+          const fakeVideoStream = createFakeVideoStream();
+          setMyVideoStream(fakeVideoStream);
+        } else if (hasVideo && !hasAudio) {
+          const videoStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          setMyVideoStream(videoStream);
+          const fakeAudioStream = createFakeAudioStream();
+          setMyAudioStream(fakeAudioStream);
+        } else {
+          const fakeAudioStream = createFakeAudioStream();
+          const fakeVideoStream = createFakeVideoStream();
+          setMyAudioStream(fakeAudioStream);
+          setMyVideoStream(fakeVideoStream);
+        }
+      } catch (err) {
+        if (err === "DOMException: Permission denied") {
+          // user denied access
+          const fakeAudioStream = createFakeAudioStream();
+          const fakeVideoStream = createFakeVideoStream();
+          setMyAudioStream(fakeAudioStream);
+          setMyVideoStream(fakeVideoStream);
+        }
+      }
+    }
+    getMediaStreams();
+  }, [hasJoined]);
+
+  useEffect(() => {
+    if (!myVideoStream || !myAudioStream) return;
+    socketRef.current = io("http://localhost:3001");
+    myPeer.current = new Peer();
+    myPeer.current.on("open", (myId) => {
+      myPeerId.current = myId;
+      socketRef.current.emit("join-room", { userId: myId, roomId, name });
+    });
+    socketRef.current.on("user-connected", ({ userId, name: userName }) => {
+      callPeer(userId, userName, myAudioStream, "audio");
+      callPeer(userId, userName, myVideoStream, "video");
+    });
+    myPeer.current.on("call", (incomingCall) => {
+      const { type, callerId, name } = incomingCall.metadata;
+      answerCall(incomingCall, callerId, name, type);
+    });
+  }, [myAudioStream, myVideoStream]);
+
+  function callPeer(peerId, peerName, myStream, type) {
+    if (type === "audio") {
+      const audioCall = myPeer.current.call(peerId, myStream, {
+        metadata: {
+          callerId: myPeerId.current,
+          type: "audio",
+          name,
+        },
+      });
+      audioCall.on("error", (err) => {
+        console.log(err);
+      });
+      audioCall.on("stream", (otherStream) => {
+        setPeerAudioStreams((streams) => [
+          ...streams,
+          { id: peerId, stream: otherStream },
+        ]);
+      });
+    }
+    if (type === "video") {
+      const videoCall = myPeer.current.call(peerId, myStream, {
+        metadata: {
+          callerId: myPeerId.current,
+          type: "video",
+          name,
+        },
+      });
+      videoCall.on("error", (err) => {
+        console.log(err);
+      });
+      videoCall.on("stream", (otherStream) => {
+        setPeerVideoStreams((streams) => [
+          ...streams,
+          { id: peerId, name: peerName, stream: otherStream },
+        ]);
+      });
+    }
+  }
+
+  function answerCall(call, callerId, callerName, type) {
+    if (type === "audio") {
+      call.answer(myAudioStream);
+      call.on("stream", (incomingStream) => {
+        setPeerAudioStreams((streams) => [
+          ...streams,
+          { id: callerId, name: callerName, stream: incomingStream },
+        ]);
+      });
+    }
+    if (type === "video") {
+      call.answer(myVideoStream);
+      call.on("stream", (incomingStream) => {
+        setPeerVideoStreams((streams) => [
+          ...streams,
+          { id: callerId, name: callerName, stream: incomingStream },
+        ]);
+      });
+    }
+  }
+  function renderPeerAudio() {
+    if (peerAudioStreams.length === 0) return null;
+    return peerAudioStreams.map((p, i) => {
+      return <Audio key={i} stream={p.stream} />;
+    });
+  }
+  return (
+    <div>
+      <div>
+        {setMyAudioStream ? <Audio stream={myAudioStream} /> : null}
+        {renderPeerAudio()}
+      </div>
+      <div></div>
+    </div>
+  );
+}
