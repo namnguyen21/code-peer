@@ -3,11 +3,12 @@ import { useEffect, useState, useRef } from "react";
 
 import CodeEditor from "./CodeEditor";
 import VoiceAndVideo from "./VoiceAndVideo";
+import Chat from "./Chat";
 import useInput from "../../hooks/useInput";
 
 export default function Index() {
   const { id: roomId } = useParams();
-  const socketRef = useRef();
+  const [socket, setSocket] = useState();
   const [hasJoined, setHasJoined] = useState(false);
   const name = useInput("");
 
@@ -33,7 +34,14 @@ export default function Index() {
   return (
     <div>
       <CodeEditor roomId={roomId} name={name.value}></CodeEditor>
-      <VoiceAndVideo socketRef={socketRef} hasJoined={hasJoined} name={name.value} roomId={roomId} />
+      <VoiceAndVideo
+        socket={socket}
+        setSocket={setSocket}
+        hasJoined={hasJoined}
+        name={name.value}
+        roomId={roomId}
+      />
+      <Chat socket={socket} name={name} roomId={roomId}  />
     </div>
   );
 }

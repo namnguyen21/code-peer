@@ -14,7 +14,6 @@ const ENDPOINT = "localhost:3001";
 export default function CodeEditor({ roomId, name }) {
   const [editorValue, setEditorValue] = useState("");
   const editorRef = useRef();
-
   useEffect(() => {
     const ydoc = new Y.Doc();
     const provider = new WebrtcProvider(`peer-code-${roomId}`, ydoc, {

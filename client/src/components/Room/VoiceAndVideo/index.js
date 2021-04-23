@@ -5,7 +5,13 @@ import { useState, useRef, useEffect } from "react";
 import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 import Audio from "./Audio";
 
-export default function VoiceAndVideo({ hasJoined, name, roomId, socketRef }) {
+export default function VoiceAndVideo({
+  hasJoined,
+  name,
+  roomId,
+  socket,
+  setSocket,
+}) {
   const myPeer = useRef();
   const myPeerId = useRef();
   const [myAudioStream, setMyAudioStream] = useState();
@@ -69,13 +75,15 @@ export default function VoiceAndVideo({ hasJoined, name, roomId, socketRef }) {
 
   useEffect(() => {
     if (!myVideoStream || !myAudioStream) return;
-    socketRef.current = io("http://localhost:3001");
+    const socketConnection = io("http://localhost:3001");
+    console.log(socketConnection);
+    setSocket(socketConnection);
     myPeer.current = new Peer();
     myPeer.current.on("open", (myId) => {
       myPeerId.current = myId;
-      socketRef.current.emit("join-room", { userId: myId, roomId, name });
+      socketConnection.emit("join-room", { userId: myId, roomId, name });
     });
-    socketRef.current.on("user-connected", ({ userId, name: userName }) => {
+    socketConnection.on("user-connected", ({ userId, name: userName }) => {
       callPeer(userId, userName, myAudioStream, "audio");
       callPeer(userId, userName, myVideoStream, "video");
     });

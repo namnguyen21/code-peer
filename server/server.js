@@ -10,6 +10,10 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     socket.to(roomId).emit("user-connected", { userId, name });
   });
+
+  socket.on("chat-send", (data) => {
+    socket.to(data.roomId).emit("chat-receive", data);
+  });
 });
 
 server.listen(3001, () => {
