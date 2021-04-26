@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 import Audio from "./Audio";
+import Video from "./Video";
 
 export default function VoiceAndVideo({
   hasJoined,
@@ -17,7 +18,7 @@ export default function VoiceAndVideo({
   const [myAudioStream, setMyAudioStream] = useState();
   const [myVideoStream, setMyVideoStream] = useState();
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
-  const [peerVideoStreams, setPeerVideoStreams] = useState([]);
+  const [peerVideoStreams, setPeerVideoStreams] = useState({});
 
   useEffect(() => {
     if (!hasJoined) return;
@@ -179,13 +180,26 @@ export default function VoiceAndVideo({
       <Audio key={i} stream={peerAudioStreams[id].stream} />
     ));
   }
+
+  const renderPeerVideo = () => {
+    const keys = Object.key(peerVideoStreams);
+    if (keys.length === 0) {
+      return null;
+    }
+    return keys.map((k, i) => (
+      <Video key={i} stream={peerVideoStreams[k].stream} />
+    ));
+  };
   return (
     <div>
       <div>
-        {setMyAudioStream ? <Audio stream={myAudioStream} /> : null}
+        {myAudioStream ? <Audio stream={myAudioStream} /> : null}
         {renderPeerAudio()}
       </div>
-      <div></div>
+      <div>
+        {myVideoStream ? <Video stream={myVideoStream} /> : null}
+        {renderPeerVideo()}
+      </div>
     </div>
   );
 }
