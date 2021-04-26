@@ -182,7 +182,7 @@ export default function VoiceAndVideo({
   }
 
   const renderPeerVideo = () => {
-    const keys = Object.key(peerVideoStreams);
+    const keys = Object.keys(peerVideoStreams);
     if (keys.length === 0) {
       return null;
     }
