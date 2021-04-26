@@ -41,7 +41,7 @@ export default function Index() {
         name={name.value}
         roomId={roomId}
       />
-      <Chat socket={socket} name={name} roomId={roomId}  />
+      <Chat socket={socket} name={name.value} roomId={roomId} />
     </div>
   );
 }

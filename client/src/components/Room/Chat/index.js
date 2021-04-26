@@ -19,16 +19,25 @@ export default function Chat({ name, roomId, socket }) {
     setMessages((messages) => [...messages, newMessage]);
   };
 
+  const renderChatMessages = () => {
+    if (messages.length === 0) {
+      return null;
+    }
+
+    return messages.map((mes, i) => (
+      <div key={i}>
+        <span>{mes.name}: </span>
+        <span>{mes.message}</span>
+      </div>
+    ));
+  };
+
   return (
     <div style={{ height: "500px", width: "200px", backgroundColor: "yellow" }}>
       <form onSubmit={handleSubmit}>
         <input value={chatBox.value} onChange={chatBox.onChange} />
       </form>
-      <div>
-        {messages.length > 0
-          ? messages.map((m, i) => <div key={i}>{m.message}</div>)
-          : null}
-      </div>
+      <div>{renderChatMessages()}</div>
     </div>
   );
 }
