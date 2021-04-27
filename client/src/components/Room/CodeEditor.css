@@ -1,3 +1,13 @@
+.react-codemirror2 {
+  height: 100%;
+  width: 100%;
+}
+
+.CodeMirror {
+  height: 100%;
+  width: 100%;
+}
+
 .remote-caret {
   position: absolute;
   margin-left: 5px;

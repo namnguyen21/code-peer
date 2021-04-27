@@ -1,22 +1,46 @@
 import Room from "./components/Room";
 import Home from "./components/Home";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import "./Global.css";
+import styled, { ThemeProvider } from "styled-components";
+import GlobalStyle from "./GlobalStyles";
+
+const THEME = {
+  colors: {
+    paper: "#23272A",
+    white: "#ffffff",
+    lightGrey: "#2C2F33",
+    green: { main: "#adffd2", light: "#ccffe3" },
+    blue: {
+      main: "#7289DA",
+      light: "#8699df",
+    },
+    pink: { main: "#FFC0CB", light: "#ffe6ea" },
+  },
+};
+
+const Main = styled.div`
+  min-height: 100vh;
+  width: 100%;
+  color: ${(props) => props.theme.colors.white};
+`;
 
 function App() {
   return (
-    <div className="App">
-      <Router>
-        <Switch>
-          <Route path="/room/:id">
-            <Room />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </Router>
-    </div>
+    <ThemeProvider theme={THEME}>
+      <Main style={{ backgroundColor: "#23272A" }} className="App">
+        <GlobalStyle />
+        <Router>
+          <Switch>
+            <Route path="/room/:id">
+              <Room />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </Router>
+      </Main>
+    </ThemeProvider>
   );
 }
 

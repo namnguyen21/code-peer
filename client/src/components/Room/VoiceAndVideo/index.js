@@ -1,10 +1,23 @@
 import io from "socket.io-client";
 import Peer from "peerjs";
 import { useState, useRef, useEffect } from "react";
+import styled from "styled-components";
 
 import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 import Audio from "./Audio";
 import Video from "./Video";
+
+const Container = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+`;
+
+const VideoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 export default function VoiceAndVideo({
   hasJoined,
@@ -12,11 +25,15 @@ export default function VoiceAndVideo({
   roomId,
   socket,
   setSocket,
+  myAudioStream,
+  myVideoStream,
+  setMyAudioStream,
+  setMyVideoStream,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
-  const [myAudioStream, setMyAudioStream] = useState();
-  const [myVideoStream, setMyVideoStream] = useState();
+  // const [myAudioStream, setMyAudioStream] = useState();
+  // const [myVideoStream, setMyVideoStream] = useState();
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
 
@@ -191,15 +208,15 @@ export default function VoiceAndVideo({
     ));
   };
   return (
-    <div>
+    <Container>
       <div>
         {myAudioStream ? <Audio stream={myAudioStream} /> : null}
         {renderPeerAudio()}
       </div>
-      <div>
+      <VideoContainer>
         {myVideoStream ? <Video stream={myVideoStream} /> : null}
         {renderPeerVideo()}
-      </div>
-    </div>
+      </VideoContainer>
+    </Container>
   );
 }
