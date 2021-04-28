@@ -1,15 +1,18 @@
 import io from "socket.io-client";
 import Peer from "peerjs";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
+import Draggable from "react-draggable";
+import { AiOutlineRotateLeft } from "react-icons/ai";
 
 import Audio from "./Audio";
 import Video from "./Video";
 
 const Container = styled.div`
   position: absolute;
-  bottom: 0;
-  left: 20%;
+  top: ${(props) => `${props.top}px`};
+  left: ${(props) => `${props.left}px`};
+  z-index: 10;
 `;
 
 const Header = styled.div`
@@ -22,12 +25,42 @@ const Header = styled.div`
   border-top-right-radius: 10px;
   text-align: center;
   cursor: move;
+  position: relative;
+  border-bottom: ${(props) => `solid 2px ${props.theme.colors.lightGrey}`};
 `;
 
 const VideoContainer = styled.div`
   display: flex;
+  flex-direction: ${(props) =>
+    props.orientation === "horizontal" ? "row" : "column"};
   justify-content: center;
   align-items: center;
+  > *:not(:last-child) {
+    border-right: ${(props) =>
+      props.orientation === "horizontal"
+        ? `solid 2px ${props.theme.colors.lightGrey}`
+        : null};
+    border-bottom: ${(props) =>
+      props.orientation === "vertical"
+        ? `solid 2px ${props.theme.colors.lightGrey}`
+        : null};
+  }
+`;
+
+const BarButton = styled.button`
+  color: ${(props) => props.theme.colors.white};
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.colors.green.main};
+  }
+  position: absolute;
+  top: 5px;
+  left: 5px;
 `;
 
 export default function VoiceAndVideo({
@@ -38,6 +71,7 @@ export default function VoiceAndVideo({
   myAudioStream,
   myVideoStream,
   backgroundIsLight,
+  topBarHeight,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
@@ -45,6 +79,7 @@ export default function VoiceAndVideo({
   // const [myVideoStream, setMyVideoStream] = useState();
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
+  const [orientation, setOrientation] = useState("horizontal");
 
   useEffect(() => {
     if (!myVideoStream || !myAudioStream || myPeer.current !== undefined)
@@ -66,6 +101,11 @@ export default function VoiceAndVideo({
       answerCall(incomingCall, callerId, name, type);
     });
   }, [myAudioStream, myVideoStream]);
+
+  // useEffect(() => {
+  //   if (!topBarHeight || containerTop) return;
+  //   setContainerTop(topBarHeight);
+  // }, [topBarHeight]);
 
   function callPeer(peerId, peerName, myStream, type) {
     if (type === "audio") {
@@ -159,29 +199,51 @@ export default function VoiceAndVideo({
     if (keys.length === 0) {
       return null;
     }
-    return keys.map((k, i) => (
-      <Video key={i} stream={peerVideoStreams[k].stream} />
-    ));
+    return keys.map((k, i) => {
+      console.log(peerVideoStreams[k]);
+      return (
+        <Video
+          key={i}
+          name={peerVideoStreams[k].name}
+          stream={peerVideoStreams[k].stream}
+        />
+      );
+    });
   };
 
-  function onMouseDown(e) {
-    console.log(e);
+  function flipOrientation() {
+    if (orientation === "horizontal") {
+      setOrientation("vertical");
+    } else {
+      setOrientation("horizontal");
+    }
   }
 
   return (
-    <Container>
-      <Header onMouseDown={onMouseDown} backgroundIsLight={backgroundIsLight}>
-        Peers
-      </Header>
-      <div>
-        {myAudioStream ? <Audio stream={myAudioStream} /> : null}
-        {renderPeerAudio()}
-      </div>
-      <VideoContainer>
-        {myVideoStream ? <Video stream={myVideoStream} /> : null}
-        {renderPeerVideo()}
-      </VideoContainer>
-    </Container>
+    <Draggable
+      axis="both"
+      defaultPosition={{ x: 200, y: topBarHeight }}
+      scale={1}
+      handle=".drag-handle"
+    >
+      <Container>
+        <Header className="drag-handle" backgroundIsLight={backgroundIsLight}>
+          <BarButton onClick={flipOrientation}>
+            <AiOutlineRotateLeft />
+          </BarButton>
+          Peers
+          <div></div>
+        </Header>
+        <div>
+          {myAudioStream ? <Audio name={name} stream={myAudioStream} /> : null}
+          {renderPeerAudio()}
+        </div>
+        <VideoContainer orientation={orientation}>
+          {myVideoStream ? <Video name={name} stream={myVideoStream} /> : null}
+          {renderPeerVideo()}
+        </VideoContainer>
+      </Container>
+    </Draggable>
   );
 }
 

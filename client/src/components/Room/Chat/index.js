@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { FiSend } from "react-icons/fi";
-import { IoChatbubblesOutline } from "react-icons/io5";
 
 import Input from "../../util/Input";
-import Button from "../../util/Button";
 import useInput from "../../../hooks/useInput";
 
 const StyledContainer = styled.div`
@@ -20,6 +18,9 @@ const Header = styled.div`
   padding: 10px 0;
   border-bottom: ${(props) => `solid 1px ${props.theme.colors.paper}`};
   border-left: ${(props) => `solid 1px ${props.theme.colors.paper}`};
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Heading = styled.h2`
@@ -81,6 +82,14 @@ const MessageAuthor = styled.p`
   margin-bottom: 5px;
 `;
 
+const CloseButton = styled.button`
+  outline: none;
+  font-size: 0.9rem;
+  background: transparent;
+  border: none;
+  color: ${(props) => props.theme.colors.blue.light};
+`;
+
 export default function Chat({
   name,
   roomId,
@@ -138,8 +147,8 @@ export default function Chat({
     <StyledContainer open={chatOpen}>
       <Header ref={chatHeader}>
         <Heading>
-          <SendBtn onClick={() => setChatOpen(false)}>close</SendBtn>
-          <IoChatbubblesOutline color="#7289DA" /> Chat
+          {/* <HiOutlineChat color="#7289DA" /> Chat */}
+          Chat
         </Heading>
       </Header>
       <MessagesContainer

@@ -91,6 +91,7 @@ export default function Index() {
         name={name.value}
         roomId={roomId}
         backgroundIsLight={backgroundIsLight}
+        topBarHeight={topBarHeight}
       />
       <Controller
         backgroundIsLight={backgroundIsLight}

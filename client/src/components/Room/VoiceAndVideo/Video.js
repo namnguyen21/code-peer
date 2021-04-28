@@ -10,9 +10,23 @@ const VideoContainer = styled.div`
   background-color: #000;
   height: 150px;
   width: 150px;
+  position: relative;
 `;
 
-export default function Component({ stream, className }) {
+const NameTag = styled.p`
+  position: absolute;
+  background-color: rgba(114, 137, 218, 0.7);
+  position: absolute;
+  color: white;
+  display: inline;
+  padding: 2px 10px;
+  z-index: 2;
+  bottom: 2px;
+  left: 2px;
+  font-size: 0.8rem;
+`;
+
+export default function Component({ stream, className, name }) {
   const videoRef = useRef();
   useEffect(() => {
     if (!videoRef.current) return;
@@ -22,6 +36,7 @@ export default function Component({ stream, className }) {
   return (
     <VideoContainer>
       <Video autoPlay className={className} ref={videoRef} />
+      <NameTag>{name}</NameTag>
     </VideoContainer>
   );
 }
