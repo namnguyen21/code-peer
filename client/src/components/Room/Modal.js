@@ -162,7 +162,6 @@ export default function Component({
 
     function handleClick() {
       setHasJoined(true);
-      console.log("hitting");
     }
 
     return (
@@ -172,7 +171,7 @@ export default function Component({
             <StyledVideo stream={myVideoStream} />
           </VideoContainer>
           <Audio stream={myAudioStream} />
-          {/* <Toggle isOn={hasAudio} onChange={handleAudioChange} /> */}
+          <Toggle isOn={hasAudio} onChange={handleAudioChange} />
           <Button onClick={handleClick}>Join Room</Button>
         </Stack>
       </div>

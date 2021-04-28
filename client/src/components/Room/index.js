@@ -90,12 +90,16 @@ export default function Index() {
         hasJoined={hasJoined}
         name={name.value}
         roomId={roomId}
+        backgroundIsLight={backgroundIsLight}
       />
       <Controller
         backgroundIsLight={backgroundIsLight}
         myAudioStream={myAudioStream}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
+        setMyAudioStream={setMyAudioStream}
+        hasAudio={hasAudio}
+        setHasAudio={setHasAudio}
       />
     </Container>
   );

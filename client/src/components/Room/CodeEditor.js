@@ -62,8 +62,15 @@ export default function CodeEditor({
   setBackgroundIsLight,
 }) {
   const [editorValue, setEditorValue] = useState("");
-  const [theme, setTheme] = useState({ display: "Base16 Light", value: "base16-light", type: "light" });
-  const [mode, setMode] = useState({ display: "JavaScript", value: "javascript" });
+  const [theme, setTheme] = useState({
+    display: "Base16 Light",
+    value: "base16-light",
+    type: "light",
+  });
+  const [mode, setMode] = useState({
+    display: "JavaScript",
+    value: "javascript",
+  });
   const modesRef = useRef([
     { display: "JavaScript", value: "javascript" },
     { display: "Python", value: "python" },
@@ -106,14 +113,17 @@ export default function CodeEditor({
     };
   }, []);
 
+  useEffect(() => {
+    if (theme.type === "light") {
+      setBackgroundIsLight(true);
+    } else {
+      setBackgroundIsLight(false);
+    }
+  }, [theme]);
+
   function handleChange(editor, data, value) {
     setEditorValue(value);
   }
-
-  const currentLightOrDarkMode = themesRef.current.find(
-    (t) => t.value === theme
-  );
-  setBackgroundIsLight(currentLightOrDarkMode === "light" ? true : false);
 
   return (
     <Container chatOpen={chatOpen} className="code-container">
@@ -128,7 +138,11 @@ export default function CodeEditor({
         </div>
         <div>
           <Label>Language: </Label>
-          <Select value={mode.value} setValue={setMode} options={modesRef.current} />
+          <Select
+            value={mode.value}
+            setValue={setMode}
+            options={modesRef.current}
+          />
         </div>
       </Settings>
       <EditorContainer topBarHeight={topBarHeight}>

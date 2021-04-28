@@ -2,8 +2,14 @@ import { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 const Video = styled.video`
-  height: 200px;
-  width: 200px;
+  height: 100%;
+  width: 100%;
+`;
+
+const VideoContainer = styled.div`
+  background-color: #000;
+  height: 150px;
+  width: 150px;
 `;
 
 export default function Component({ stream, className }) {
@@ -11,7 +17,11 @@ export default function Component({ stream, className }) {
   useEffect(() => {
     if (!videoRef.current) return;
     videoRef.current.srcObject = stream;
-    videoRef.current.play();
+    // videoRef.current.play();
   }, [videoRef.current]);
-  return <Video className={className} ref={videoRef} />;
+  return (
+    <VideoContainer>
+      <Video autoPlay className={className} ref={videoRef} />
+    </VideoContainer>
+  );
 }

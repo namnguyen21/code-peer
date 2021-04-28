@@ -3,14 +3,25 @@ import Peer from "peerjs";
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 
-import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 import Audio from "./Audio";
 import Video from "./Video";
 
 const Container = styled.div`
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 20%;
+`;
+
+const Header = styled.div`
+  width: 100%;
+  padding: 5px;
+  font-size: 0.8rem;
+  background-color: ${(props) =>
+    props.backgroundIsLight ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.1)"};
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  text-align: center;
+  cursor: move;
 `;
 
 const VideoContainer = styled.div`
@@ -20,15 +31,13 @@ const VideoContainer = styled.div`
 `;
 
 export default function VoiceAndVideo({
-  hasJoined,
   name,
   roomId,
   socket,
   setSocket,
   myAudioStream,
   myVideoStream,
-  setMyAudioStream,
-  setMyVideoStream,
+  backgroundIsLight,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
@@ -38,61 +47,9 @@ export default function VoiceAndVideo({
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
 
   useEffect(() => {
-    if (!hasJoined) return;
-    // async function getMediaStreams() {
-    //   const devices = await navigator.mediaDevices.enumerateDevices();
-    //   let hasAudio = false;
-    //   let hasVideo = false;
+    if (!myVideoStream || !myAudioStream || myPeer.current !== undefined)
+      return;
 
-    //   devices.forEach((d) => {
-    //     if (d.kind === "audioinput") hasAudio = true;
-    //     if (d.kind === "videoinput") hasVideo = true;
-    //   });
-    //   try {
-    //     if (hasVideo && hasAudio) {
-    //       const stream = await navigator.mediaDevices.getUserMedia({
-    //         video: true,
-    //         audio: true,
-    //       });
-    //       const audio = new MediaStream(stream.getAudioTracks());
-    //       const video = new MediaStream(stream.getVideoTracks());
-    //       setMyAudioStream(audio);
-    //       setMyVideoStream(video);
-    //     } else if (hasAudio && !hasVideo) {
-    //       const audioStream = await navigator.mediaDevices.getUserMedia({
-    //         audio: true,
-    //       });
-    //       setMyAudioStream(audioStream);
-    //       const fakeVideoStream = createFakeVideoStream();
-    //       setMyVideoStream(fakeVideoStream);
-    //     } else if (hasVideo && !hasAudio) {
-    //       const videoStream = await navigator.mediaDevices.getUserMedia({
-    //         video: true,
-    //       });
-    //       setMyVideoStream(videoStream);
-    //       const fakeAudioStream = createFakeAudioStream();
-    //       setMyAudioStream(fakeAudioStream);
-    //     } else {
-    //       const fakeAudioStream = createFakeAudioStream();
-    //       const fakeVideoStream = createFakeVideoStream();
-    //       setMyAudioStream(fakeAudioStream);
-    //       setMyVideoStream(fakeVideoStream);
-    //     }
-    //   } catch (err) {
-    //     if (err === "DOMException: Permission denied") {
-    //       // user denied access
-    //       const fakeAudioStream = createFakeAudioStream();
-    //       const fakeVideoStream = createFakeVideoStream();
-    //       setMyAudioStream(fakeAudioStream);
-    //       setMyVideoStream(fakeVideoStream);
-    //     }
-    //   }
-    // }
-   // getMediaStreams();
-  }, [hasJoined]);
-
-  useEffect(() => {
-    if (!myVideoStream || !myAudioStream) return;
     const socketConnection = io("http://localhost:3001");
     setSocket(socketConnection);
     myPeer.current = new Peer();
@@ -206,8 +163,16 @@ export default function VoiceAndVideo({
       <Video key={i} stream={peerVideoStreams[k].stream} />
     ));
   };
+
+  function onMouseDown(e) {
+    console.log(e);
+  }
+
   return (
     <Container>
+      <Header onMouseDown={onMouseDown} backgroundIsLight={backgroundIsLight}>
+        Peers
+      </Header>
       <div>
         {myAudioStream ? <Audio stream={myAudioStream} /> : null}
         {renderPeerAudio()}
@@ -219,3 +184,57 @@ export default function VoiceAndVideo({
     </Container>
   );
 }
+
+// useEffect(() => {
+//   if (!hasJoined) return;
+//   // async function getMediaStreams() {
+//   //   const devices = await navigator.mediaDevices.enumerateDevices();
+//   //   let hasAudio = false;
+//   //   let hasVideo = false;
+
+//   //   devices.forEach((d) => {
+//   //     if (d.kind === "audioinput") hasAudio = true;
+//   //     if (d.kind === "videoinput") hasVideo = true;
+//   //   });
+//   //   try {
+//   //     if (hasVideo && hasAudio) {
+//   //       const stream = await navigator.mediaDevices.getUserMedia({
+//   //         video: true,
+//   //         audio: true,
+//   //       });
+//   //       const audio = new MediaStream(stream.getAudioTracks());
+//   //       const video = new MediaStream(stream.getVideoTracks());
+//   //       setMyAudioStream(audio);
+//   //       setMyVideoStream(video);
+//   //     } else if (hasAudio && !hasVideo) {
+//   //       const audioStream = await navigator.mediaDevices.getUserMedia({
+//   //         audio: true,
+//   //       });
+//   //       setMyAudioStream(audioStream);
+//   //       const fakeVideoStream = createFakeVideoStream();
+//   //       setMyVideoStream(fakeVideoStream);
+//   //     } else if (hasVideo && !hasAudio) {
+//   //       const videoStream = await navigator.mediaDevices.getUserMedia({
+//   //         video: true,
+//   //       });
+//   //       setMyVideoStream(videoStream);
+//   //       const fakeAudioStream = createFakeAudioStream();
+//   //       setMyAudioStream(fakeAudioStream);
+//   //     } else {
+//   //       const fakeAudioStream = createFakeAudioStream();
+//   //       const fakeVideoStream = createFakeVideoStream();
+//   //       setMyAudioStream(fakeAudioStream);
+//   //       setMyVideoStream(fakeVideoStream);
+//   //     }
+//   //   } catch (err) {
+//   //     if (err === "DOMException: Permission denied") {
+//   //       // user denied access
+//   //       const fakeAudioStream = createFakeAudioStream();
+//   //       const fakeVideoStream = createFakeVideoStream();
+//   //       setMyAudioStream(fakeAudioStream);
+//   //       setMyVideoStream(fakeVideoStream);
+//   //     }
+//   //   }
+//   // }
+//  // getMediaStreams();
+// }, [hasJoined]);

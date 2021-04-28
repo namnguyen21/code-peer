@@ -1,11 +1,13 @@
 import styled from "styled-components";
 import { HiChatAlt2, HiMicrophone, HiVideoCamera } from "react-icons/hi";
 
+import IconBtn from "./IconButton";
+
 const Container = styled.div`
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   background-color: ${(props) =>
-    props.backgroundIsLight ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.1)"};
+    props.backgroundIsLight ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.1)"};
   display: flex;
   align-items: center;
   position: absolute;
@@ -14,6 +16,13 @@ const Container = styled.div`
   transform: translateX(-50%);
   > *:not(:last-child) {
     border-right: ${(props) => `solid 1px ${props.theme.colors.paper}`};
+  }
+  transition: all 0.2s;
+  > *:first-child {
+    border-top-left-radius: 10px;
+  }
+  > *:last-child {
+    border-top-right-radius: 10px;
   }
 `;
 
@@ -51,44 +60,55 @@ export default function Controller({
   chatOpen,
   myAudioStream,
   backgroundIsLight,
+  hasAudio,
+  setHasAudio,
 }) {
   function onAudioChange() {
     const audioTrack = myAudioStream.getAudioTracks()[0];
-    if (audioTrack.enabled) {
-      audioTrack.enabled = false;
+    console.log(audioTrack);
+    if (myAudioStream.getAudioTracks()[0].enabled) {
+      myAudioStream.getAudioTracks()[0].enabled = false;
     } else {
-      audioTrack.enabled = true;
+      myAudioStream.getAudioTracks()[0].enabled = true;
     }
+    setHasAudio((hasAudio) => !hasAudio);
   }
 
   return (
     <Container backgroundIsLight={backgroundIsLight}>
-      <Section>
-        <IconButton onClick={() => setChatOpen((open) => !open)}>
-          <HiChatAlt2 />
-          <ButtonDescription>
-            {chatOpen ? "Close Chat" : "Open Chat"}
-          </ButtonDescription>
-        </IconButton>
-      </Section>
-      <Section>
-        <IconButton onClick={onAudioChange}>
+      {/* <Section> */}
+      {/* <IconButton onClick={() => setChatOpen((open) => !open)}>
+        <HiChatAlt2 />
+        <ButtonDescription>
+          {chatOpen ? "Close Chat" : "Open Chat"}
+        </ButtonDescription>
+      </IconButton> */}
+      <IconBtn
+        onClick={() => setChatOpen((open) => !open)}
+        isOn={chatOpen}
+        icon={<HiChatAlt2 />}
+      >
+        {chatOpen ? "Close Chat" : "Open Chat"}
+      </IconBtn>
+      {/* </Section>
+      <Section> */}
+      {/* <IconButton onClick={onAudioChange}>
           <HiMicrophone />
           <ButtonDescription>
-            {myAudioStream
-              ? myAudioStream.getAudioTracks()[0].enabled
-                ? "Mute Audio"
-                : "Unmute Audio"
-              : null}
+            {hasAudio ? "Mute Audio" : "Unmute Audio"}
           </ButtonDescription>
-        </IconButton>
-      </Section>
-      <Section>
-        <IconButton>
-          <HiVideoCamera />
-          <ButtonDescription>Pause Video</ButtonDescription>
-        </IconButton>
-      </Section>
+        </IconButton> */}
+      <IconBtn isOn={hasAudio} onClick={onAudioChange} icon={<HiMicrophone />}>
+        {hasAudio ? "Mute Audio" : "Unmute Audio"}
+      </IconBtn>
+      {/* </Section>
+      <Section> */}
+      <IconBtn icon={<HiVideoCamera />}>Pause Camera</IconBtn>
+      {/* <IconButton>
+        <HiVideoCamera />
+        <ButtonDescription>Pause Video</ButtonDescription>
+      </IconButton> */}
+      {/* </Section> */}
     </Container>
   );
 }
