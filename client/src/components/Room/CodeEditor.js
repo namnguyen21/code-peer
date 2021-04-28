@@ -54,10 +54,16 @@ const Label = styled.label`
 
 const ENDPOINT = "localhost:3001";
 
-export default function CodeEditor({ roomId, name, topBarHeight, chatOpen }) {
+export default function CodeEditor({
+  roomId,
+  name,
+  topBarHeight,
+  chatOpen,
+  setBackgroundIsLight,
+}) {
   const [editorValue, setEditorValue] = useState("");
-  const [theme, setTheme] = useState("ayu-dark");
-  const [mode, setMode] = useState("javascript");
+  const [theme, setTheme] = useState({ display: "Base16 Light", value: "base16-light", type: "light" });
+  const [mode, setMode] = useState({ display: "JavaScript", value: "javascript" });
   const modesRef = useRef([
     { display: "JavaScript", value: "javascript" },
     { display: "Python", value: "python" },
@@ -65,15 +71,19 @@ export default function CodeEditor({ roomId, name, topBarHeight, chatOpen }) {
     { display: "HTML", value: "html-mixed" },
   ]);
   const themesRef = useRef([
-    { display: "Ayu Dark", value: "ayu-dark" },
-    { display: "Darcula", value: "darcula" },
-    { display: "Monokai", value: "monokai" },
-    { display: "Material Darker", value: "material-darker" },
-    { display: "Material Ocean", value: "material-ocean" },
-    { display: "Material Palenight", value: "material-palenight" },
-    { display: "Nord", value: "nord" },
-    { display: "Elegant", value: "elegant" },
-    { display: "Base16 Light", value: "base16-light" },
+    { display: "Ayu Dark", value: "ayu-dark", type: "dark" },
+    { display: "Darcula", value: "darcula", type: "dark" },
+    { display: "Monokai", value: "monokai", type: "dark" },
+    { display: "Material Darker", value: "material-darker", type: "dark" },
+    { display: "Material Ocean", value: "material-ocean", type: "dark" },
+    {
+      display: "Material Palenight",
+      value: "material-palenight",
+      type: "dark",
+    },
+    { display: "Nord", value: "nord", type: "dark" },
+    { display: "Elegant", value: "elegant", type: "light" },
+    { display: "Base16 Light", value: "base16-light", type: "light" },
   ]);
   const editorRef = useRef();
   useEffect(() => {
@@ -100,7 +110,10 @@ export default function CodeEditor({ roomId, name, topBarHeight, chatOpen }) {
     setEditorValue(value);
   }
 
-  console.log(editorRef);
+  const currentLightOrDarkMode = themesRef.current.find(
+    (t) => t.value === theme
+  );
+  setBackgroundIsLight(currentLightOrDarkMode === "light" ? true : false);
 
   return (
     <Container chatOpen={chatOpen} className="code-container">
@@ -108,14 +121,14 @@ export default function CodeEditor({ roomId, name, topBarHeight, chatOpen }) {
         <div>
           <Label>Theme: </Label>
           <Select
-            value={theme}
+            value={theme.value}
             setValue={setTheme}
             options={themesRef.current}
           />
         </div>
         <div>
           <Label>Language: </Label>
-          <Select value={mode} setValue={setMode} options={modesRef.current} />
+          <Select value={mode.value} setValue={setMode} options={modesRef.current} />
         </div>
       </Settings>
       <EditorContainer topBarHeight={topBarHeight}>
@@ -128,9 +141,9 @@ export default function CodeEditor({ roomId, name, topBarHeight, chatOpen }) {
             handleChange(editor, data, value)
           }
           options={{
-            mode: mode,
+            mode: mode.value,
             lineNumbers: true,
-            theme: theme,
+            theme: theme.value,
             autoCloseBrackets: true,
             matchBrackets: true,
           }}

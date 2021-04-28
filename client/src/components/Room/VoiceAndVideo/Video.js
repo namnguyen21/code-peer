@@ -1,11 +1,17 @@
 import { useEffect, useRef } from "react";
+import styled from "styled-components";
 
-export default function Video({ stream }) {
+const Video = styled.video`
+  height: 200px;
+  width: 200px;
+`;
+
+export default function Component({ stream, className }) {
   const videoRef = useRef();
   useEffect(() => {
     if (!videoRef.current) return;
     videoRef.current.srcObject = stream;
     videoRef.current.play();
   }, [videoRef.current]);
-  return <video ref={videoRef} />;
+  return <Video className={className} ref={videoRef} />;
 }

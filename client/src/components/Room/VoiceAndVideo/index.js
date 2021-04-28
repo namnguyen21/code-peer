@@ -39,62 +39,61 @@ export default function VoiceAndVideo({
 
   useEffect(() => {
     if (!hasJoined) return;
-    async function getMediaStreams() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      let hasAudio = false;
-      let hasVideo = false;
+    // async function getMediaStreams() {
+    //   const devices = await navigator.mediaDevices.enumerateDevices();
+    //   let hasAudio = false;
+    //   let hasVideo = false;
 
-      devices.forEach((d) => {
-        if (d.kind === "audioinput") hasAudio = true;
-        if (d.kind === "videoinput") hasVideo = true;
-      });
-      try {
-        if (hasVideo && hasAudio) {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true,
-          });
-          const audio = new MediaStream(stream.getAudioTracks());
-          const video = new MediaStream(stream.getVideoTracks());
-          setMyAudioStream(audio);
-          setMyVideoStream(video);
-        } else if (hasAudio && !hasVideo) {
-          const audioStream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-          });
-          setMyAudioStream(audioStream);
-          const fakeVideoStream = createFakeVideoStream();
-          setMyVideoStream(fakeVideoStream);
-        } else if (hasVideo && !hasAudio) {
-          const videoStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          setMyVideoStream(videoStream);
-          const fakeAudioStream = createFakeAudioStream();
-          setMyAudioStream(fakeAudioStream);
-        } else {
-          const fakeAudioStream = createFakeAudioStream();
-          const fakeVideoStream = createFakeVideoStream();
-          setMyAudioStream(fakeAudioStream);
-          setMyVideoStream(fakeVideoStream);
-        }
-      } catch (err) {
-        if (err === "DOMException: Permission denied") {
-          // user denied access
-          const fakeAudioStream = createFakeAudioStream();
-          const fakeVideoStream = createFakeVideoStream();
-          setMyAudioStream(fakeAudioStream);
-          setMyVideoStream(fakeVideoStream);
-        }
-      }
-    }
-    getMediaStreams();
+    //   devices.forEach((d) => {
+    //     if (d.kind === "audioinput") hasAudio = true;
+    //     if (d.kind === "videoinput") hasVideo = true;
+    //   });
+    //   try {
+    //     if (hasVideo && hasAudio) {
+    //       const stream = await navigator.mediaDevices.getUserMedia({
+    //         video: true,
+    //         audio: true,
+    //       });
+    //       const audio = new MediaStream(stream.getAudioTracks());
+    //       const video = new MediaStream(stream.getVideoTracks());
+    //       setMyAudioStream(audio);
+    //       setMyVideoStream(video);
+    //     } else if (hasAudio && !hasVideo) {
+    //       const audioStream = await navigator.mediaDevices.getUserMedia({
+    //         audio: true,
+    //       });
+    //       setMyAudioStream(audioStream);
+    //       const fakeVideoStream = createFakeVideoStream();
+    //       setMyVideoStream(fakeVideoStream);
+    //     } else if (hasVideo && !hasAudio) {
+    //       const videoStream = await navigator.mediaDevices.getUserMedia({
+    //         video: true,
+    //       });
+    //       setMyVideoStream(videoStream);
+    //       const fakeAudioStream = createFakeAudioStream();
+    //       setMyAudioStream(fakeAudioStream);
+    //     } else {
+    //       const fakeAudioStream = createFakeAudioStream();
+    //       const fakeVideoStream = createFakeVideoStream();
+    //       setMyAudioStream(fakeAudioStream);
+    //       setMyVideoStream(fakeVideoStream);
+    //     }
+    //   } catch (err) {
+    //     if (err === "DOMException: Permission denied") {
+    //       // user denied access
+    //       const fakeAudioStream = createFakeAudioStream();
+    //       const fakeVideoStream = createFakeVideoStream();
+    //       setMyAudioStream(fakeAudioStream);
+    //       setMyVideoStream(fakeVideoStream);
+    //     }
+    //   }
+    // }
+   // getMediaStreams();
   }, [hasJoined]);
 
   useEffect(() => {
     if (!myVideoStream || !myAudioStream) return;
     const socketConnection = io("http://localhost:3001");
-    console.log(socketConnection);
     setSocket(socketConnection);
     myPeer.current = new Peer();
     myPeer.current.on("open", (myId) => {

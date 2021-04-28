@@ -20,13 +20,8 @@ const Container = styled.main`
 `;
 
 const CodeContainer = styled.div`
-  /* width: calc(100vw - 300px); */
   width: ${(props) => (props.chatOpen ? "calc(100vw - 300px)" : "100vw")};
   transition: all 0.2s;
-  height: 100%;
-`;
-
-const ChatContainer = styled.div`
   height: 100%;
 `;
 
@@ -37,20 +32,27 @@ export default function Index() {
   const [topBarHeight, setTopBarHeight] = useState(0);
   const [myVideoStream, setMyVideoStream] = useState();
   const [myAudioStream, setMyAudioStream] = useState();
+  const [backgroundIsLight, setBackgroundIsLight] = useState(true);
+  const [hasAudio, setHasAudio] = useState(false);
+  const [hasVideo, setHasVideo] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const name = useInput("");
 
   function renderJoinPrompt() {
-    function onJoinSubmit(e) {
-      e.preventDefault();
-      if (!name.value.length) {
-        return;
-      }
-
-      setHasJoined(true);
-    }
     return (
-      <Modal name={name} hasJoined={hasJoined} setHasJoined={setHasJoined} />
+      <Modal
+        myAudioStream={myAudioStream}
+        myVideoStream={myVideoStream}
+        setMyAudioStream={setMyAudioStream}
+        setMyVideoStream={setMyVideoStream}
+        hasAudio={hasAudio}
+        hasVideo={hasVideo}
+        setHasAudio={setHasAudio}
+        setHasVideo={setHasVideo}
+        name={name}
+        hasJoined={hasJoined}
+        setHasJoined={setHasJoined}
+      />
     );
   }
 
@@ -60,6 +62,7 @@ export default function Index() {
     <Container>
       <CodeContainer chatOpen={chatOpen}>
         <CodeEditor
+          setBackgroundIsLight={setBackgroundIsLight}
           chatOpen={chatOpen}
           topBarHeight={topBarHeight}
           roomId={roomId}
@@ -89,6 +92,7 @@ export default function Index() {
         roomId={roomId}
       />
       <Controller
+        backgroundIsLight={backgroundIsLight}
         myAudioStream={myAudioStream}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}

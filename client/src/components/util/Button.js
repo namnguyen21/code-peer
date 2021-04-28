@@ -21,5 +21,5 @@ const Container = styled.button`
 `;
 
 export default function Button({ children, onClick, fontSize }) {
-  return <Container fontSize={fontSize}>{children}</Container>;
+  return <Container onClick={onClick} fontSize={fontSize}>{children}</Container>;
 }

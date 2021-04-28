@@ -18,7 +18,11 @@ const Option = styled.option`
 
 export default function Component({ options, value, setValue }) {
   function renderOptions() {
-    options.sort();
+    options.sort((a, b) => {
+      if (a.value < b.value) return -1;
+      if (a.value > b.value) return 1;
+      return 0;
+    });
     return options.map((o, i) => (
       <Option key={i} value={o.value}>
         {o.display}
@@ -27,7 +31,7 @@ export default function Component({ options, value, setValue }) {
   }
 
   function handleChange(e) {
-    setValue(e.target.value);
+    setValue(options.find((target) => target.value === e.target.value));
   }
 
   return (

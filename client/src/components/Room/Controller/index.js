@@ -4,7 +4,8 @@ import { HiChatAlt2, HiMicrophone, HiVideoCamera } from "react-icons/hi";
 const Container = styled.div`
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: ${(props) =>
+    props.backgroundIsLight ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.1)"};
   display: flex;
   align-items: center;
   position: absolute;
@@ -45,7 +46,12 @@ const ButtonDescription = styled.p`
   margin-top: 5px;
 `;
 
-export default function Controller({ setChatOpen, chatOpen, myAudioStream }) {
+export default function Controller({
+  setChatOpen,
+  chatOpen,
+  myAudioStream,
+  backgroundIsLight,
+}) {
   function onAudioChange() {
     const audioTrack = myAudioStream.getAudioTracks()[0];
     if (audioTrack.enabled) {
@@ -54,11 +60,12 @@ export default function Controller({ setChatOpen, chatOpen, myAudioStream }) {
       audioTrack.enabled = true;
     }
   }
+
   return (
-    <Container>
+    <Container backgroundIsLight={backgroundIsLight}>
       <Section>
-        <IconButton>
-          <HiChatAlt2 onClick={() => setChatOpen((open) => !open)} />
+        <IconButton onClick={() => setChatOpen((open) => !open)}>
+          <HiChatAlt2 />
           <ButtonDescription>
             {chatOpen ? "Close Chat" : "Open Chat"}
           </ButtonDescription>
@@ -67,7 +74,13 @@ export default function Controller({ setChatOpen, chatOpen, myAudioStream }) {
       <Section>
         <IconButton onClick={onAudioChange}>
           <HiMicrophone />
-          <ButtonDescription>Mute Audio</ButtonDescription>
+          <ButtonDescription>
+            {myAudioStream
+              ? myAudioStream.getAudioTracks()[0].enabled
+                ? "Mute Audio"
+                : "Unmute Audio"
+              : null}
+          </ButtonDescription>
         </IconButton>
       </Section>
       <Section>

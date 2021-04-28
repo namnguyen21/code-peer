@@ -9,7 +9,7 @@ const THEME = {
     paper: "#23272A",
     white: "#ffffff",
     lightGrey: "#2C2F33",
-    green: { main: "#adffd2", light: "#ccffe3" },
+    green: { main: "#1aff53", light: "#99ffb3" },
     blue: {
       main: "#7289DA",
       light: "#8699df",
