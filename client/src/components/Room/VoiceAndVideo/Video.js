@@ -21,8 +21,8 @@ const NameTag = styled.p`
   display: inline;
   padding: 2px 10px;
   z-index: 2;
-  bottom: 2px;
-  left: 2px;
+  bottom: 5px;
+  left: 5px;
   font-size: 0.8rem;
 `;
 

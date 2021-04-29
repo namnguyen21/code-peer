@@ -60,6 +60,7 @@ export default function CodeEditor({
   topBarHeight,
   chatOpen,
   setBackgroundIsLight,
+  socket,
 }) {
   const [editorValue, setEditorValue] = useState("");
   const [theme, setTheme] = useState({
@@ -114,6 +115,19 @@ export default function CodeEditor({
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
+    socket.on("theme-change", (newTheme) => {
+      const themeObj = themesRef.current.find((t) => t.value === newTheme);
+      setTheme(themeObj);
+    });
+
+    socket.on("mode-change", (mode) => {
+      const modeObj = modesRef.current.find((m) => m.value === mode);
+      setMode(modeObj);
+    });
+  }, [socket]);
+
+  useEffect(() => {
     if (theme.type === "light") {
       setBackgroundIsLight(true);
     } else {
@@ -125,6 +139,16 @@ export default function CodeEditor({
     setEditorValue(value);
   }
 
+  function handleThemeChange(theme) {
+    setTheme(theme);
+    socket.emit("theme-change", { roomId, theme: theme.value });
+  }
+
+  function handleModeChange(lang) {
+    setMode(lang);
+    socket.emit("mode-change", { roomId, mode: lang.value });
+  }
+
   return (
     <Container chatOpen={chatOpen} className="code-container">
       <Settings topBarHeight={topBarHeight}>
@@ -132,7 +156,7 @@ export default function CodeEditor({
           <Label>Theme: </Label>
           <Select
             value={theme.value}
-            setValue={setTheme}
+            setValue={handleThemeChange}
             options={themesRef.current}
           />
         </div>
@@ -140,7 +164,7 @@ export default function CodeEditor({
           <Label>Language: </Label>
           <Select
             value={mode.value}
-            setValue={setMode}
+            setValue={handleModeChange}
             options={modesRef.current}
           />
         </div>

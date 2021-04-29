@@ -17,6 +17,7 @@ const Container = styled.main`
   max-width: 100vw;
   overflow-x: hidden;
   overflow: hidden;
+  position: relative;
 `;
 
 const CodeContainer = styled.div`
@@ -33,26 +34,16 @@ export default function Index() {
   const [myVideoStream, setMyVideoStream] = useState();
   const [myAudioStream, setMyAudioStream] = useState();
   const [backgroundIsLight, setBackgroundIsLight] = useState(true);
-  const [hasAudio, setHasAudio] = useState(false);
-  const [hasVideo, setHasVideo] = useState(false);
+  const [audioDevices, setAudioDevices] = useState([]);
+  const [videoDevices, setVideoDevices] = useState([]);
+  const [audioIsEnabled, setAudioIsEnabled] = useState(false);
+  const [videoIsEnabled, setVideoIsEnabled] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const name = useInput("");
 
   function renderJoinPrompt() {
     return (
-      <Modal
-        myAudioStream={myAudioStream}
-        myVideoStream={myVideoStream}
-        setMyAudioStream={setMyAudioStream}
-        setMyVideoStream={setMyVideoStream}
-        hasAudio={hasAudio}
-        hasVideo={hasVideo}
-        setHasAudio={setHasAudio}
-        setHasVideo={setHasVideo}
-        name={name}
-        hasJoined={hasJoined}
-        setHasJoined={setHasJoined}
-      />
+      <Modal name={name} hasJoined={hasJoined} setHasJoined={setHasJoined} />
     );
   }
 
@@ -62,6 +53,7 @@ export default function Index() {
     <Container>
       <CodeContainer chatOpen={chatOpen}>
         <CodeEditor
+          socket={socket}
           setBackgroundIsLight={setBackgroundIsLight}
           chatOpen={chatOpen}
           topBarHeight={topBarHeight}
@@ -83,8 +75,16 @@ export default function Index() {
       <VoiceAndVideo
         myAudioStream={myAudioStream}
         setMyAudioStream={setMyAudioStream}
-        myVideoStream={myAudioStream}
+        myVideoStream={myVideoStream}
         setMyVideoStream={setMyVideoStream}
+        audioIsEnabled={audioIsEnabled}
+        setAudioIsEnabled={setAudioIsEnabled}
+        videoIsEnabled={videoIsEnabled}
+        setVideoIsEnabled={setVideoIsEnabled}
+        audioDevices={audioDevices}
+        setAudioDevices={setAudioDevices}
+        videoDevices={videoDevices}
+        setVideoDevices={setVideoDevices}
         socket={socket}
         setSocket={setSocket}
         hasJoined={hasJoined}
@@ -96,11 +96,16 @@ export default function Index() {
       <Controller
         backgroundIsLight={backgroundIsLight}
         myAudioStream={myAudioStream}
+        myVideoStream={myVideoStream}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
         setMyAudioStream={setMyAudioStream}
-        hasAudio={hasAudio}
-        setHasAudio={setHasAudio}
+        audioIsEnabled={audioIsEnabled}
+        setAudioIsEnabled={setAudioIsEnabled}
+        videoIsEnabled={videoIsEnabled}
+        setVideoIsEnabled={setVideoIsEnabled}
+        audioDevices={audioDevices}
+        videoDevices={videoDevices}
       />
     </Container>
   );

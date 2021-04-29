@@ -56,86 +56,16 @@ const VideoContainer = styled.div`
   border-radius: 10px;
 `;
 
-export default function Component({
-  hasJoined,
-  setHasJoined,
-  name,
-  setMyAudioStream,
-  setMyVideoStream,
-  myAudioStream,
-  myVideoStream,
-  hasAudio,
-  hasVideo,
-  setHasAudio,
-  setHasVideo,
-}) {
-  const [hasEnteredName, setHasEnteredName] = useState(false);
-
-  useEffect(() => {
-    if (!hasEnteredName) return;
-    async function getMediaStreams() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      let hasAudio = false;
-      let hasVideo = false;
-
-      devices.forEach((d) => {
-        if (d.kind === "audioinput") hasAudio = true;
-        if (d.kind === "videoinput") hasVideo = true;
-      });
-      try {
-        if (hasVideo && hasAudio) {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true,
-          });
-          const audio = new MediaStream(stream.getAudioTracks());
-          const video = new MediaStream(stream.getVideoTracks());
-          setMyAudioStream(audio);
-          setMyVideoStream(video);
-          setHasAudio(true);
-          setHasVideo(true);
-        } else if (hasAudio && !hasVideo) {
-          const audioStream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-          });
-          setMyAudioStream(audioStream);
-          const fakeVideoStream = createFakeVideoStream();
-          setMyVideoStream(fakeVideoStream);
-          setHasAudio(true);
-          setHasVideo(false);
-        } else if (hasVideo && !hasAudio) {
-          const videoStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          setMyVideoStream(videoStream);
-          const fakeAudioStream = createFakeAudioStream();
-          setMyAudioStream(fakeAudioStream);
-          setHasAudio(false);
-          setHasVideo(true);
-        } else {
-          const fakeAudioStream = createFakeAudioStream();
-          const fakeVideoStream = createFakeVideoStream();
-          setMyAudioStream(fakeAudioStream);
-          setMyVideoStream(fakeVideoStream);
-          setHasAudio(false);
-          setHasVideo(false);
-        }
-      } catch (err) {
-        if (err === "DOMException: Permission denied") {
-          // user denied access
-          const fakeAudioStream = createFakeAudioStream();
-          const fakeVideoStream = createFakeVideoStream();
-          setMyAudioStream(fakeAudioStream);
-          setMyVideoStream(fakeVideoStream);
-          setHasAudio(false);
-          setHasVideo(false);
-        }
-      }
-    }
-    getMediaStreams();
-  }, [hasEnteredName]);
-
+export default function Component({ hasJoined, setHasJoined, name }) {
   function renderNamePrompt() {
+    function handleSubmit(e) {
+      e.preventDefault();
+      if (name.value.length === 0) {
+        return;
+      }
+      setHasJoined(true);
+    }
+
     return (
       <Form onSubmit={handleSubmit}>
         <Stack space={10}>
@@ -153,39 +83,6 @@ export default function Component({
     );
   }
 
-  function renderVoiceAndVideoPrompt() {
-    function handleAudioChange() {
-      const current = myAudioStream.getAudioTracks()[0].enabled;
-      setHasAudio((hasAudio) => !hasAudio);
-      myAudioStream.getAudioTracks()[0].enabled = !current;
-    }
-
-    function handleClick() {
-      setHasJoined(true);
-    }
-
-    return (
-      <div>
-        <Stack space={10}>
-          <VideoContainer>
-            <StyledVideo stream={myVideoStream} />
-          </VideoContainer>
-          <Audio stream={myAudioStream} />
-          <Toggle isOn={hasAudio} onChange={handleAudioChange} />
-          <Button onClick={handleClick}>Join Room</Button>
-        </Stack>
-      </div>
-    );
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (name.value.length === 0) {
-      return;
-    }
-    setHasEnteredName(true);
-  }
-
   return (
     <StyledModal
       style={{
@@ -195,11 +92,7 @@ export default function Component({
       }}
       isOpen={hasJoined ? false : true}
     >
-      {!hasEnteredName
-        ? renderNamePrompt()
-        : hasEnteredName && !hasJoined
-        ? renderVoiceAndVideoPrompt()
-        : null}
+      {!hasJoined ? renderNamePrompt() : null}
     </StyledModal>
   );
 }

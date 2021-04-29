@@ -59,56 +59,62 @@ export default function Controller({
   setChatOpen,
   chatOpen,
   myAudioStream,
+  myVideoStream,
   backgroundIsLight,
-  hasAudio,
-  setHasAudio,
+  audioIsEnabled,
+  setAudioIsEnabled,
+  videoIsEnabled,
+  setVideoIsEnabled,
+  audioDevices,
+  videoDevices,
 }) {
   function onAudioChange() {
-    const audioTrack = myAudioStream.getAudioTracks()[0];
-    console.log(audioTrack);
+    console.log(audioDevices);
     if (myAudioStream.getAudioTracks()[0].enabled) {
       myAudioStream.getAudioTracks()[0].enabled = false;
     } else {
       myAudioStream.getAudioTracks()[0].enabled = true;
     }
-    setHasAudio((hasAudio) => !hasAudio);
+    setAudioIsEnabled((isEnabled) => !isEnabled);
+  }
+
+  function onVideoChange() {
+    if ((myVideoStream.getVideoTracks()[0].enabled = false)) {
+      myAudioStream.getVideoTracks()[0].enabled = true;
+    } else {
+      myVideoStream.getVideoTracks()[0].enabled = false;
+    }
+    setVideoIsEnabled((isEnabled) => !isEnabled);
   }
 
   return (
     <Container backgroundIsLight={backgroundIsLight}>
-      {/* <Section> */}
-      {/* <IconButton onClick={() => setChatOpen((open) => !open)}>
-        <HiChatAlt2 />
-        <ButtonDescription>
-          {chatOpen ? "Close Chat" : "Open Chat"}
-        </ButtonDescription>
-      </IconButton> */}
       <IconBtn
         onClick={() => setChatOpen((open) => !open)}
-        isOn={chatOpen}
+        isOn={true}
         icon={<HiChatAlt2 />}
       >
         {chatOpen ? "Close Chat" : "Open Chat"}
       </IconBtn>
-      {/* </Section>
-      <Section> */}
-      {/* <IconButton onClick={onAudioChange}>
-          <HiMicrophone />
-          <ButtonDescription>
-            {hasAudio ? "Mute Audio" : "Unmute Audio"}
-          </ButtonDescription>
-        </IconButton> */}
-      <IconBtn isOn={hasAudio} onClick={onAudioChange} icon={<HiMicrophone />}>
-        {hasAudio ? "Mute Audio" : "Unmute Audio"}
+
+      <IconBtn
+        isOn={audioIsEnabled}
+        disabled={audioDevices.length === 0 ? true : false}
+        onClick={onAudioChange}
+        icon={<HiMicrophone />}
+        disabled={audioDevices.length === 0 ? true : false}
+      >
+        {audioIsEnabled ? "Mute Audio" : "Unmute Audio"}
       </IconBtn>
-      {/* </Section>
-      <Section> */}
-      <IconBtn icon={<HiVideoCamera />}>Pause Camera</IconBtn>
-      {/* <IconButton>
-        <HiVideoCamera />
-        <ButtonDescription>Pause Video</ButtonDescription>
-      </IconButton> */}
-      {/* </Section> */}
+
+      <IconBtn
+        isOn={videoIsEnabled}
+        disabled={videoDevices.length === 0 ? true : false}
+        icon={<HiVideoCamera />}
+        onClick={onVideoChange}
+      >
+        {videoIsEnabled ? "Pause Video" : "Resume Video"}
+      </IconBtn>
     </Container>
   );
 }

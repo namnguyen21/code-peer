@@ -7,6 +7,8 @@ import { AiOutlineRotateLeft } from "react-icons/ai";
 
 import Audio from "./Audio";
 import Video from "./Video";
+import Tooltip from "../../util/Tooltip";
+import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 
 const Container = styled.div`
   position: absolute;
@@ -45,6 +47,23 @@ const VideoContainer = styled.div`
         ? `solid 2px ${props.theme.colors.lightGrey}`
         : null};
   }
+  > * {
+    &:last-child {
+      border-bottom-left-radius: ${(props) =>
+        props.orientation === "vertical" ? "10px" : null};
+      border-bottom-right-radius: 10px;
+    }
+    &:first-child {
+      border-bottom-left-radius: ${(props) =>
+        props.orientation === "horizontal" ? "10px" : null};
+    }
+  }
+`;
+
+const BarButtonContainer = styled.div`
+  position: absolute;
+  top: 5px;
+  left: 5px;
 `;
 
 const BarButton = styled.button`
@@ -58,28 +77,95 @@ const BarButton = styled.button`
   &:hover {
     color: ${(props) => props.theme.colors.green.main};
   }
-  position: absolute;
-  top: 5px;
-  left: 5px;
 `;
 
 export default function VoiceAndVideo({
   name,
   roomId,
-  socket,
   setSocket,
   myAudioStream,
   myVideoStream,
   backgroundIsLight,
   topBarHeight,
+  hasJoined,
+  setMyAudioStream,
+  setMyVideoStream,
+  setAudioIsEnabled,
+  setVideoIsEnabled,
+  setAudioDevices,
+  setVideoDevices,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
-  // const [myAudioStream, setMyAudioStream] = useState();
-  // const [myVideoStream, setMyVideoStream] = useState();
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
   const [orientation, setOrientation] = useState("horizontal");
+
+  useEffect(() => {
+    if (!hasJoined) return;
+    async function getMediaStreams() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      let hasAudio = false;
+      let hasVideo = false;
+      const totalAudioDevices = [];
+      const totalVideoDevices = [];
+      devices.forEach((d) => {
+        if (d.kind === "audioinput") {
+          totalAudioDevices.push(d);
+          hasAudio = true;
+        }
+        if (d.kind === "videoinput") {
+          totalVideoDevices.push(d);
+          hasVideo = true;
+        }
+      });
+      setAudioDevices(totalAudioDevices);
+      setVideoDevices(totalVideoDevices);
+      try {
+        let audioStream, videoStream;
+
+        if (hasAudio && hasVideo) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          audioStream = new MediaStream(stream.getAudioTracks());
+          videoStream = new MediaStream(stream.getVideoTracks());
+        } else if (hasAudio && !hasVideo) {
+          audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          videoStream = createFakeVideoStream();
+        } else if (hasVideo && !hasAudio) {
+          videoStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          audioStream = createFakeAudioStream();
+        } else {
+          // neither
+          videoStream = createFakeVideoStream();
+          audioStream = createFakeAudioStream();
+        }
+        setMyAudioStream(audioStream);
+        setMyVideoStream(videoStream);
+        setAudioIsEnabled(hasAudio);
+        setVideoIsEnabled(hasVideo);
+        setAudioDevices(totalAudioDevices);
+        setVideoDevices(totalVideoDevices);
+      } catch (err) {
+        // user denied access
+        const fakeAudioStream = createFakeAudioStream();
+        const fakeVideoStream = createFakeVideoStream();
+        setMyAudioStream(fakeAudioStream);
+        setMyVideoStream(fakeVideoStream);
+        setAudioIsEnabled(false);
+        setVideoIsEnabled(false);
+        setAudioDevices([]);
+        setVideoDevices([]);
+      }
+    }
+    getMediaStreams();
+  }, [hasJoined]);
 
   useEffect(() => {
     if (!myVideoStream || !myAudioStream || myPeer.current !== undefined)
@@ -100,12 +186,16 @@ export default function VoiceAndVideo({
       const { type, callerId, name } = incomingCall.metadata;
       answerCall(incomingCall, callerId, name, type);
     });
-  }, [myAudioStream, myVideoStream]);
 
-  // useEffect(() => {
-  //   if (!topBarHeight || containerTop) return;
-  //   setContainerTop(topBarHeight);
-  // }, [topBarHeight]);
+    socketConnection.on("user-disconnected", (userId) => {
+      const newAudio = { ...peerAudioStreams };
+      const newVideo = { ...peerVideoStreams };
+      delete newAudio[userId];
+      delete newVideo[userId];
+      setPeerAudioStreams(newAudio);
+      setPeerVideoStreams(newVideo);
+    });
+  }, [myAudioStream, myVideoStream]);
 
   function callPeer(peerId, peerName, myStream, type) {
     if (type === "audio") {
@@ -218,19 +308,24 @@ export default function VoiceAndVideo({
       setOrientation("horizontal");
     }
   }
-
+  console.log(topBarHeight);
   return (
     <Draggable
       axis="both"
-      defaultPosition={{ x: 200, y: topBarHeight }}
+      defaultPosition={{ x: 200, y: Math.ceil(topBarHeight) }}
       scale={1}
       handle=".drag-handle"
+      bounaries="parent"
     >
       <Container>
         <Header className="drag-handle" backgroundIsLight={backgroundIsLight}>
-          <BarButton onClick={flipOrientation}>
-            <AiOutlineRotateLeft />
-          </BarButton>
+          <BarButtonContainer>
+            <Tooltip tip="Rotate Orientation">
+              <BarButton onClick={flipOrientation}>
+                <AiOutlineRotateLeft />
+              </BarButton>
+            </Tooltip>
+          </BarButtonContainer>
           Peers
           <div></div>
         </Header>
@@ -246,57 +341,3 @@ export default function VoiceAndVideo({
     </Draggable>
   );
 }
-
-// useEffect(() => {
-//   if (!hasJoined) return;
-//   // async function getMediaStreams() {
-//   //   const devices = await navigator.mediaDevices.enumerateDevices();
-//   //   let hasAudio = false;
-//   //   let hasVideo = false;
-
-//   //   devices.forEach((d) => {
-//   //     if (d.kind === "audioinput") hasAudio = true;
-//   //     if (d.kind === "videoinput") hasVideo = true;
-//   //   });
-//   //   try {
-//   //     if (hasVideo && hasAudio) {
-//   //       const stream = await navigator.mediaDevices.getUserMedia({
-//   //         video: true,
-//   //         audio: true,
-//   //       });
-//   //       const audio = new MediaStream(stream.getAudioTracks());
-//   //       const video = new MediaStream(stream.getVideoTracks());
-//   //       setMyAudioStream(audio);
-//   //       setMyVideoStream(video);
-//   //     } else if (hasAudio && !hasVideo) {
-//   //       const audioStream = await navigator.mediaDevices.getUserMedia({
-//   //         audio: true,
-//   //       });
-//   //       setMyAudioStream(audioStream);
-//   //       const fakeVideoStream = createFakeVideoStream();
-//   //       setMyVideoStream(fakeVideoStream);
-//   //     } else if (hasVideo && !hasAudio) {
-//   //       const videoStream = await navigator.mediaDevices.getUserMedia({
-//   //         video: true,
-//   //       });
-//   //       setMyVideoStream(videoStream);
-//   //       const fakeAudioStream = createFakeAudioStream();
-//   //       setMyAudioStream(fakeAudioStream);
-//   //     } else {
-//   //       const fakeAudioStream = createFakeAudioStream();
-//   //       const fakeVideoStream = createFakeVideoStream();
-//   //       setMyAudioStream(fakeAudioStream);
-//   //       setMyVideoStream(fakeVideoStream);
-//   //     }
-//   //   } catch (err) {
-//   //     if (err === "DOMException: Permission denied") {
-//   //       // user denied access
-//   //       const fakeAudioStream = createFakeAudioStream();
-//   //       const fakeVideoStream = createFakeVideoStream();
-//   //       setMyAudioStream(fakeAudioStream);
-//   //       setMyVideoStream(fakeVideoStream);
-//   //     }
-//   //   }
-//   // }
-//  // getMediaStreams();
-// }, [hasJoined]);
