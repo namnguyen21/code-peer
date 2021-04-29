@@ -79,11 +79,12 @@ export default function Controller({
   }
 
   function onVideoChange() {
-    if ((myVideoStream.getVideoTracks()[0].enabled = false)) {
-      myAudioStream.getVideoTracks()[0].enabled = true;
+    if (myVideoStream.getVideoTracks()[0].enabled === false) {
+      myVideoStream.getVideoTracks()[0].enabled = true;
     } else {
       myVideoStream.getVideoTracks()[0].enabled = false;
     }
+    console.log(myVideoStream.getVideoTracks()[0]);
     setVideoIsEnabled((isEnabled) => !isEnabled);
   }
 
