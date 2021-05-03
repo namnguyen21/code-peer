@@ -26,35 +26,6 @@ const Container = styled.div`
   }
 `;
 
-const Section = styled.div`
-  color: ${(props) => props.theme.colors.white};
-  padding: 10px 20px;
-`;
-
-const IconButton = styled.button`
-  outline: none;
-  background: transparent;
-  color: inherit;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  cursor: pointer;
-  > svg {
-    font-size: 1.2rem;
-  }
-  &:hover {
-    color: ${(props) => props.theme.colors.blue.light};
-  }
-`;
-
-const ButtonDescription = styled.p`
-  margin-top: 5px;
-`;
-
 export default function Controller({
   setChatOpen,
   chatOpen,

@@ -1,8 +1,10 @@
-import Room from "./components/Room";
-import Home from "./components/Home";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import GlobalStyle from "./GlobalStyles";
+
+import Room from "./components/Room";
+import Home from "./components/Home";
+import RoomCreate from "./components/RoomCreate";
 
 const THEME = {
   colors: {
@@ -31,6 +33,9 @@ function App() {
         <GlobalStyle />
         <Router>
           <Switch>
+            <Route path="/room/create">
+              <RoomCreate />
+            </Route>
             <Route path="/room/:id">
               <Room />
             </Route>

@@ -114,6 +114,13 @@ export default function Chat({
     setTopBarHeight(node.getBoundingClientRect().height);
   }, []);
 
+  // const useElHeightCallback = (setter) => {
+  //   const element = useCallback((node) => {
+  //     if (!node) return;
+  //     setter(node.getBoundingClientRect().height);
+  //   });
+  // };
+
   useEffect(() => {
     if (!socket) return;
     socket.on("chat-receive", (messageInfo) => {
