@@ -17,18 +17,7 @@ const setex = promisify(client.setex).bind(client);
 const exists = promisify(client.exists).bind(client);
 const increment = promisify(client.incr).bind(client);
 
-const colors = [
-  "#7289da",
-  "#1aff53",
-  "#ffc0cb",
-  "#fcb747",
-  "#f75c5c",
-  "#4d868f",
-  "#5ce0f7",
-  "#940ec4",
-  "#14692d",
-  "#8f764d",
-];
+const colors = ["#7289da", "#9256da",'#317e54','#2272a4','#a4569a','#637983'];
 
 // creating a new room
 router.get("/create", async (req, res) => {
@@ -58,7 +47,7 @@ router.get("/join/:roomID", async (req, res) => {
       res.json({ error: "Not a valid room." });
     } else {
       const numOfMembers = await increment(`members:${roomID}`);
-      const color = colors[(numOfMembers % 10) - 1];
+      const color = colors[(numOfMembers % 6) - 1];
       console.log(color);
       res.json({ color: color });
     }

@@ -29,7 +29,7 @@ import Select from "../util/Select";
 import "./CodeEditor.css";
 
 const Container = styled.section`
-  height: 100%;
+  max-height: 100%;
   width: ${(props) => (props.chatOpen ? "100%" : "100vw")};
   transition: all 0.2s;
 `;
@@ -45,11 +45,11 @@ const Settings = styled.div`
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  height: ${(props) => `${props.topBarHeight}px`};
+  padding: 20px;
 `;
 
 const Label = styled.label`
-  font-size: 0.9rem;
+  font-size: 1rem;
 `;
 
 const ENDPOINT = "localhost:3001";
@@ -187,6 +187,7 @@ export default function CodeEditor({
             theme: theme.value,
             autoCloseBrackets: true,
             matchBrackets: true,
+            indentUnit: 4,
           }}
         />
       </EditorContainer>

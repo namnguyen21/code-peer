@@ -1,6 +1,7 @@
 import { useParams, Redirect } from "react-router-dom";
 import { useState, useRef } from "react";
 import styled from "styled-components";
+import { HiOutlineChat } from "react-icons/hi";
 
 import CodeEditor from "./CodeEditor";
 import VoiceAndVideo from "./VoiceAndVideo";
@@ -22,14 +23,35 @@ const Container = styled.main`
 `;
 
 const CodeContainer = styled.div`
-  width: ${(props) => (props.chatOpen ? "calc(100vw - 300px)" : "100vw")};
+  width: 100%;
   transition: all 0.2s;
-  height: 100%;
+  height: calc(100vh - 60px);
+`;
+
+const ChatButton = styled.button`
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  background-color: ${(props) => props.theme.colors.blue.main};
+  outline: none;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 100px;
+  right: 50px;
+  color: ${(props) => props.theme.colors.white};
+  font-size: 35px;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background-color: ${(props) => props.theme.colors.blue.light};
+  }
 `;
 
 export default function Index() {
   const { id: roomId } = useParams();
-  // const [isValidRoom, setIsValidRoom] = useState(null);
   const [socket, setSocket] = useState();
   const [hasJoined, setHasJoined] = useState(false);
   const [topBarHeight, setTopBarHeight] = useState(0);
@@ -92,14 +114,17 @@ export default function Index() {
         backgroundIsLight={backgroundIsLight}
         topBarHeight={topBarHeight}
       />
-      <Controller
+      {/* <Controller
         backgroundIsLight={backgroundIsLight}
         myAudioStream={myAudioStream}
         myVideoStream={myVideoStream}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
         setMyAudioStream={setMyAudioStream}
-      />
+      /> */}
+      <ChatButton onClick={() => setChatOpen((isOpen) => !isOpen)}>
+        <HiOutlineChat />
+      </ChatButton>
     </Container>
   );
 }
