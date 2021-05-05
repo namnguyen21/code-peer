@@ -9,7 +9,7 @@ export default function Index() {
     <div>
       HOME PAGE
       <Button color="blue">
-        <Link to={`/room/${uuid()}`}>Create a room</Link>
+        <Link to={`/room/create`}>Create a room</Link>
       </Button>
     </div>
   );

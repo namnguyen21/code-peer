@@ -61,6 +61,7 @@ export default function CodeEditor({
   chatOpen,
   setBackgroundIsLight,
   socket,
+  color,
 }) {
   const [editorValue, setEditorValue] = useState("");
   const [theme, setTheme] = useState({
@@ -99,8 +100,10 @@ export default function CodeEditor({
     const provider = new WebrtcProvider(`peer-code-${roomId}`, ydoc, {
       signaling: ["wss://y-webrtc-signaling-us.herokuapp.com"],
     });
+    console.log(color);
     provider.awareness.setLocalStateField("user", {
       name,
+      color,
     });
     const yText = ydoc.getText("codemirror");
     const binding = new CodemirrorBinding(

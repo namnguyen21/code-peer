@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useParams, Redirect } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
+import axios from "axios";
 
 import CodeEditor from "./CodeEditor";
 import VoiceAndVideo from "./VoiceAndVideo";
@@ -28,6 +29,7 @@ const CodeContainer = styled.div`
 
 export default function Index() {
   const { id: roomId } = useParams();
+  const [isValidRoom, setIsValidRoom] = useState(null);
   const [socket, setSocket] = useState();
   const [hasJoined, setHasJoined] = useState(false);
   const [topBarHeight, setTopBarHeight] = useState(0);
@@ -40,14 +42,35 @@ export default function Index() {
   const [videoIsEnabled, setVideoIsEnabled] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const name = useInput("");
+  const [color, setColor] = useState("");
 
-  function renderJoinPrompt() {
+  useEffect(() => {
+    const validateRoomID = async () => {
+      const { data } = await axios.get(
+        `http://localhost:3001/room/join/${roomId}`
+      );
+      if (data.error) {
+        setIsValidRoom(false);
+      } else {
+        setColor(data.color);
+        setIsValidRoom(true);
+      }
+    };
+    validateRoomID();
+  }, []);
+
+  if (isValidRoom === null) {
+    return <Container></Container>;
+  }
+
+  if (isValidRoom === false) {
+    return <Redirect to="/404" />;
+  }
+
+  if (!hasJoined)
     return (
       <Modal name={name} hasJoined={hasJoined} setHasJoined={setHasJoined} />
     );
-  }
-
-  if (!hasJoined) return renderJoinPrompt();
 
   return (
     <Container>
@@ -59,10 +82,12 @@ export default function Index() {
           topBarHeight={topBarHeight}
           roomId={roomId}
           name={name.value}
+          color={color}
         ></CodeEditor>
       </CodeContainer>
 
       <Chat
+        color={color}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
         topBarHeight={topBarHeight}
@@ -73,6 +98,7 @@ export default function Index() {
       />
 
       <VoiceAndVideo
+        color={color}
         myAudioStream={myAudioStream}
         setMyAudioStream={setMyAudioStream}
         myVideoStream={myVideoStream}

@@ -23,6 +23,6 @@ export default function RoomCreate() {
       </div>
     );
   } else {
-    return <Redirect to={`room/${roomId}`} />;
+    return <Redirect to={`/room/${roomId}`} />;
   }
 }

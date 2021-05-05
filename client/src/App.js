@@ -5,6 +5,7 @@ import GlobalStyle from "./GlobalStyles";
 import Room from "./components/Room";
 import Home from "./components/Home";
 import RoomCreate from "./components/RoomCreate";
+import ErrorPage from "./components/404";
 
 const THEME = {
   colors: {
@@ -38,6 +39,9 @@ function App() {
             </Route>
             <Route path="/room/:id">
               <Room />
+            </Route>
+            <Route path="/404">
+              <ErrorPage />
             </Route>
             <Route path="/">
               <Home />

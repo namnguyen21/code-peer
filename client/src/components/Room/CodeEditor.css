@@ -12,5 +12,6 @@
   position: absolute;
   margin-left: 5px;
   display: inline;
-  opacity: 0.6;
+  color: #fff;
+  padding: 5px 10px;
 }
