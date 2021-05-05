@@ -13,6 +13,7 @@ const Container = styled.div`
   position: absolute;
   bottom: 0;
   left: 50%;
+  z-index: 16;
   transform: translateX(-50%);
   > *:not(:last-child) {
     border-right: ${(props) => `solid 1px ${props.theme.colors.paper}`};
@@ -69,7 +70,7 @@ export default function Controller({
         {chatOpen ? "Close Chat" : "Open Chat"}
       </IconBtn>
 
-      <IconBtn
+      {/* <IconBtn
         isOn={audioIsEnabled}
         disabled={audioDevices.length === 0 ? true : false}
         onClick={onAudioChange}
@@ -86,7 +87,7 @@ export default function Controller({
         onClick={onVideoChange}
       >
         {videoIsEnabled ? "Pause Video" : "Resume Video"}
-      </IconBtn>
+      </IconBtn> */}
     </Container>
   );
 }

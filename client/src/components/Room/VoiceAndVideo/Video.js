@@ -8,8 +8,8 @@ const Video = styled.video`
 
 const VideoContainer = styled.div`
   background-color: #000;
-  height: 150px;
-  width: 150px;
+  height: 200px;
+  width: 200px;
   position: relative;
 `;
 

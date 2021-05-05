@@ -1,7 +1,6 @@
 import { useParams, Redirect } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import styled from "styled-components";
-import axios from "axios";
 
 import CodeEditor from "./CodeEditor";
 import VoiceAndVideo from "./VoiceAndVideo";
@@ -9,10 +8,11 @@ import Chat from "./Chat";
 import Modal from "./Modal";
 import Controller from "./Controller";
 import useInput from "../../hooks/useInput";
+import useValidRoom from "../../hooks/useValidRoom";
 
 const Container = styled.main`
   height: 100vh;
-  max-height: 100vh;
+  max-height: calc(100vh - 60px);
   width: 100%;
   display: flex;
   max-width: 100vw;
@@ -29,35 +29,16 @@ const CodeContainer = styled.div`
 
 export default function Index() {
   const { id: roomId } = useParams();
-  const [isValidRoom, setIsValidRoom] = useState(null);
+  // const [isValidRoom, setIsValidRoom] = useState(null);
   const [socket, setSocket] = useState();
   const [hasJoined, setHasJoined] = useState(false);
   const [topBarHeight, setTopBarHeight] = useState(0);
   const [myVideoStream, setMyVideoStream] = useState();
   const [myAudioStream, setMyAudioStream] = useState();
   const [backgroundIsLight, setBackgroundIsLight] = useState(true);
-  const [audioDevices, setAudioDevices] = useState([]);
-  const [videoDevices, setVideoDevices] = useState([]);
-  const [audioIsEnabled, setAudioIsEnabled] = useState(false);
-  const [videoIsEnabled, setVideoIsEnabled] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const name = useInput("");
-  const [color, setColor] = useState("");
-
-  useEffect(() => {
-    const validateRoomID = async () => {
-      const { data } = await axios.get(
-        `http://localhost:3001/room/join/${roomId}`
-      );
-      if (data.error) {
-        setIsValidRoom(false);
-      } else {
-        setColor(data.color);
-        setIsValidRoom(true);
-      }
-    };
-    validateRoomID();
-  }, []);
+  const { isValidRoom, color } = useValidRoom(roomId);
 
   if (isValidRoom === null) {
     return <Container></Container>;
@@ -103,14 +84,6 @@ export default function Index() {
         setMyAudioStream={setMyAudioStream}
         myVideoStream={myVideoStream}
         setMyVideoStream={setMyVideoStream}
-        audioIsEnabled={audioIsEnabled}
-        setAudioIsEnabled={setAudioIsEnabled}
-        videoIsEnabled={videoIsEnabled}
-        setVideoIsEnabled={setVideoIsEnabled}
-        audioDevices={audioDevices}
-        setAudioDevices={setAudioDevices}
-        videoDevices={videoDevices}
-        setVideoDevices={setVideoDevices}
         socket={socket}
         setSocket={setSocket}
         hasJoined={hasJoined}
@@ -126,12 +99,6 @@ export default function Index() {
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
         setMyAudioStream={setMyAudioStream}
-        audioIsEnabled={audioIsEnabled}
-        setAudioIsEnabled={setAudioIsEnabled}
-        videoIsEnabled={videoIsEnabled}
-        setVideoIsEnabled={setVideoIsEnabled}
-        audioDevices={audioDevices}
-        videoDevices={videoDevices}
       />
     </Container>
   );

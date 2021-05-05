@@ -7,6 +7,7 @@ import { AiOutlineRotateLeft } from "react-icons/ai";
 
 import Audio from "./Audio";
 import Video from "./Video";
+import MyVideo from "./MyVideo";
 import Tooltip from "../../util/Tooltip";
 import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
 
@@ -15,6 +16,8 @@ const Container = styled.div`
   top: ${(props) => `${props.top}px`};
   left: ${(props) => `${props.left}px`};
   z-index: 10;
+  left: 50%;
+  top: ${(props) => `${props.topBarHeight}px`};
 `;
 
 const Header = styled.div`
@@ -90,13 +93,17 @@ export default function VoiceAndVideo({
   hasJoined,
   setMyAudioStream,
   setMyVideoStream,
-  setAudioIsEnabled,
-  setVideoIsEnabled,
-  setAudioDevices,
-  setVideoDevices,
+  // setAudioIsEnabled,
+  // setVideoIsEnabled,
+  // setAudioDevices,
+  // setVideoDevices,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
+  const [audioDevices, setAudioDevices] = useState([]);
+  const [videoDevices, setVideoDevices] = useState([]);
+  const [audioIsEnabled, setAudioIsEnabled] = useState(false);
+  const [videoIsEnabled, setVideoIsEnabled] = useState(false);
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
   const [orientation, setOrientation] = useState("horizontal");
@@ -308,16 +315,32 @@ export default function VoiceAndVideo({
       setOrientation("horizontal");
     }
   }
-  console.log(topBarHeight);
+
+  const toggleAudio = () => {
+    if (myAudioStream.getAudioTracks()[0].enabled) {
+      myAudioStream.getAudioTracks()[0].enabled = false;
+    } else {
+      myAudioStream.getAudioTracks()[0].enabled = true;
+    }
+    setAudioIsEnabled((isEnabled) => !isEnabled);
+  };
+
+  const toggleVideo = () => {
+    if (myVideoStream.getVideoTracks()[0].enabled === false) {
+      myVideoStream.getVideoTracks()[0].enabled = true;
+    } else {
+      myVideoStream.getVideoTracks()[0].enabled = false;
+    }
+    setVideoIsEnabled((isEnabled) => !isEnabled);
+  };
   return (
     <Draggable
       axis="both"
-      defaultPosition={{ x: 200, y: Math.ceil(topBarHeight) }}
       scale={1}
       handle=".drag-handle"
       bounaries="parent"
     >
-      <Container>
+      <Container topBarHeight={topBarHeight}>
         <Header className="drag-handle" backgroundIsLight={backgroundIsLight}>
           <BarButtonContainer>
             <Tooltip tip="Rotate Orientation">
@@ -334,7 +357,18 @@ export default function VoiceAndVideo({
           {renderPeerAudio()}
         </div>
         <VideoContainer orientation={orientation}>
-          {myVideoStream ? <Video name={name} stream={myVideoStream} /> : null}
+          {myVideoStream ? (
+            <MyVideo
+              name={name}
+              toggleAudio={toggleAudio}
+              audioIsEnabled={audioIsEnabled}
+              videoIsEnabled={videoIsEnabled}
+              audioDevices={audioDevices}
+              videoDevices={videoDevices}
+              toggleVideo={toggleVideo}
+              stream={myVideoStream}
+            />
+          ) : null}
           {renderPeerVideo()}
         </VideoContainer>
       </Container>

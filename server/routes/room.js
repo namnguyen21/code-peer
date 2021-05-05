@@ -4,6 +4,8 @@ const { v4: uuid } = require("uuid");
 const { promisify } = require("util");
 const e = require("cors");
 
+const HOURS_TILL_EXPIRATION = 24;
+
 const client = redis.createClient();
 
 client.on("error", (err) => {
@@ -11,6 +13,7 @@ client.on("error", (err) => {
 });
 
 const set = promisify(client.set).bind(client);
+const setex = promisify(client.setex).bind(client);
 const exists = promisify(client.exists).bind(client);
 const increment = promisify(client.incr).bind(client);
 
@@ -31,7 +34,11 @@ const colors = [
 router.get("/create", async (req, res) => {
   const newID = uuid();
   try {
-    const results = await set(`members:${newID}`, 0);
+    const results = await setex(
+      `members:${newID}`,
+      3600 * HOURS_TILL_EXPIRATION,
+      0
+    );
     res.json({ roomID: newID });
   } catch (err) {
     if (err) {

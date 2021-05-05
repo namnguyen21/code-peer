@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import GlobalStyle from "./GlobalStyles";
 
+import Nav from "./components/Nav";
 import Room from "./components/Room";
 import Home from "./components/Home";
 import RoomCreate from "./components/RoomCreate";
@@ -32,6 +33,7 @@ function App() {
     <ThemeProvider theme={THEME}>
       <Main style={{ backgroundColor: "#23272A" }} className="App">
         <GlobalStyle />
+        <Nav />
         <Router>
           <Switch>
             <Route path="/room/create">

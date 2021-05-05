@@ -11,6 +11,16 @@ const StyledContainer = styled.div`
   transform: ${(props) => (props.open ? "translateX(0)" : "translateX(300px)")};
   background-color: ${(props) => props.theme.colors.lightGrey};
   transition: all 0.2s;
+  @media(max-width: 1000px) {
+    width: 100vw;
+    position: absolute;
+    left: ${(props) => (props.open ? "0" : null)};
+    top: ${(props) => (props.open ? "0" : null)};
+    transform: ${(props) =>
+      props.open ? "translateX(0)" : "translateX(100vw)"};
+    
+    z-index: 15;
+  }
 `;
 
 const Header = styled.div`
