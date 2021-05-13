@@ -1,5 +1,6 @@
-import { useCallback, useRef } from "react";
 import styled from "styled-components";
+
+import useVideoCallback from '../../../hooks/useVideoCallback'
 
 const Video = styled.video`
   height: 100%;
@@ -27,16 +28,9 @@ const NameTag = styled.p`
 `;
 
 export default function Component({ stream, className, name }) {
-  // const videoRef = useRef();
-  // useEffect(() => {
-  //   if (!videoRef.current) return;
-  //   videoRef.current.srcObject = stream;
-  //   // videoRef.current.play();
-  // }, [videoRef.current]);
-  const videoRef = useCallback((node) => {
-    if (!node) return;
-    node.srcObject = stream;
-  }, []);
+
+  const videoRef = useVideoCallback(stream)
+
   return (
     <VideoContainer>
       <Video autoPlay className={className} ref={videoRef} />

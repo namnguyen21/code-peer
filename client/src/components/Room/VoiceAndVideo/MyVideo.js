@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { useRef, useEffect } from "react";
 import { HiChatAlt2, HiMicrophone, HiVideoCamera } from "react-icons/hi";
+import useVideoCallback from '../../../hooks/useVideoCallback'
 
 const VideoContainer = styled.div`
   background-color: #000;
@@ -85,15 +85,10 @@ export default function MyVideo({
   audioDevices,
   videoDevices,
 }) {
-  const videoRef = useRef();
-  useEffect(() => {
-    if (!videoRef.current) return;
-    videoRef.current.srcObject = stream;
-    videoRef.current.play();
-  }, [videoRef.current]);
+  const videoRef = useVideoCallback(stream);
   return (
     <VideoContainer>
-      <Video ref={videoRef} />
+      <Video autoPlay ref={videoRef} />
       <ButtonContainer>
         <IconButton
           disabled={audioDevices.length === 0}
