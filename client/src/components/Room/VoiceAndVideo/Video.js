@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import styled from "styled-components";
 
 const Video = styled.video`
@@ -27,12 +27,16 @@ const NameTag = styled.p`
 `;
 
 export default function Component({ stream, className, name }) {
-  const videoRef = useRef();
-  useEffect(() => {
-    if (!videoRef.current) return;
-    videoRef.current.srcObject = stream;
-    // videoRef.current.play();
-  }, [videoRef.current]);
+  // const videoRef = useRef();
+  // useEffect(() => {
+  //   if (!videoRef.current) return;
+  //   videoRef.current.srcObject = stream;
+  //   // videoRef.current.play();
+  // }, [videoRef.current]);
+  const videoRef = useCallback((node) => {
+    if (!node) return;
+    node.srcObject = stream;
+  }, []);
   return (
     <VideoContainer>
       <Video autoPlay className={className} ref={videoRef} />

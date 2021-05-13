@@ -1,4 +1,4 @@
-const createEmptyAudioTrack = () => {
+export const createEmptyAudioTrack = () => {
   const ctx = new AudioContext();
   const oscillator = ctx.createOscillator();
   const dst = oscillator.connect(ctx.createMediaStreamDestination());
@@ -7,7 +7,7 @@ const createEmptyAudioTrack = () => {
   return Object.assign(track, { enabled: false });
 };
 
-const createEmptyVideoTrack = (width, height) => {
+export const createEmptyVideoTrack = (width, height) => {
   const canvas = Object.assign(document.createElement("canvas"), {
     width,
     height,

@@ -7,7 +7,6 @@ import CodeEditor from "./CodeEditor";
 import VoiceAndVideo from "./VoiceAndVideo";
 import Chat from "./Chat";
 import Modal from "./Modal";
-import Controller from "./Controller";
 import useInput from "../../hooks/useInput";
 import useValidRoom from "../../hooks/useValidRoom";
 
@@ -114,14 +113,6 @@ export default function Index() {
         backgroundIsLight={backgroundIsLight}
         topBarHeight={topBarHeight}
       />
-      {/* <Controller
-        backgroundIsLight={backgroundIsLight}
-        myAudioStream={myAudioStream}
-        myVideoStream={myVideoStream}
-        chatOpen={chatOpen}
-        setChatOpen={setChatOpen}
-        setMyAudioStream={setMyAudioStream}
-      /> */}
       <ChatButton onClick={() => setChatOpen((isOpen) => !isOpen)}>
         <HiOutlineChat />
       </ChatButton>

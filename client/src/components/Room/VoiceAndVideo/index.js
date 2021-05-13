@@ -5,11 +5,10 @@ import styled from "styled-components";
 import Draggable from "react-draggable";
 import { AiOutlineRotateLeft } from "react-icons/ai";
 
-import Audio from "./Audio";
 import Video from "./Video";
 import MyVideo from "./MyVideo";
 import Tooltip from "../../util/Tooltip";
-import { createFakeAudioStream, createFakeVideoStream } from "./fakeStreams";
+import { createEmptyAudioTrack, createEmptyVideoTrack } from "./fakeStreams";
 
 const Container = styled.div`
   position: absolute;
@@ -86,17 +85,9 @@ export default function VoiceAndVideo({
   name,
   roomId,
   setSocket,
-  myAudioStream,
-  myVideoStream,
   backgroundIsLight,
   topBarHeight,
   hasJoined,
-  setMyAudioStream,
-  setMyVideoStream,
-  // setAudioIsEnabled,
-  // setVideoIsEnabled,
-  // setAudioDevices,
-  // setVideoDevices,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
@@ -104,8 +95,8 @@ export default function VoiceAndVideo({
   const [videoDevices, setVideoDevices] = useState([]);
   const [audioIsEnabled, setAudioIsEnabled] = useState(false);
   const [videoIsEnabled, setVideoIsEnabled] = useState(false);
-  const [peerAudioStreams, setPeerAudioStreams] = useState({});
-  const [peerVideoStreams, setPeerVideoStreams] = useState({});
+  const [myStream, setMyStream] = useState();
+  const [peerStreams, setPeerStreams] = useState({});
   const [orientation, setOrientation] = useState("horizontal");
 
   useEffect(() => {
@@ -129,42 +120,44 @@ export default function VoiceAndVideo({
       setAudioDevices(totalAudioDevices);
       setVideoDevices(totalVideoDevices);
       try {
-        let audioStream, videoStream;
+        let audioTrack, videoTrack;
 
         if (hasAudio && hasVideo) {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true,
           });
-          audioStream = new MediaStream(stream.getAudioTracks());
-          videoStream = new MediaStream(stream.getVideoTracks());
+          audioTrack = stream.getAudioTracks()[0];
+          videoTrack = stream.getVideoTracks()[0];
         } else if (hasAudio && !hasVideo) {
-          audioStream = await navigator.mediaDevices.getUserMedia({
+          const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
           });
-          videoStream = createFakeVideoStream();
+          audioTrack = stream.getAudioTracks()[0];
+          videoTrack = createEmptyVideoTrack(100, 100);
         } else if (hasVideo && !hasAudio) {
-          videoStream = await navigator.mediaDevices.getUserMedia({
+          const videoStream = await navigator.mediaDevices.getUserMedia({
             video: true,
           });
-          audioStream = createFakeAudioStream();
+          videoTrack = videoStream.getVideoTracks()[0];
+          audioTrack = createEmptyAudioTrack();
         } else {
           // neither
-          videoStream = createFakeVideoStream();
-          audioStream = createFakeAudioStream();
+          videoTrack = createEmptyVideoTrack();
+          audioTrack = createEmptyAudioTrack();
         }
-        setMyAudioStream(audioStream);
-        setMyVideoStream(videoStream);
+        const stream = new MediaStream([audioTrack, videoTrack]);
+        setMyStream(stream);
         setAudioIsEnabled(hasAudio);
         setVideoIsEnabled(hasVideo);
         setAudioDevices(totalAudioDevices);
         setVideoDevices(totalVideoDevices);
       } catch (err) {
         // user denied access
-        const fakeAudioStream = createFakeAudioStream();
-        const fakeVideoStream = createFakeVideoStream();
-        setMyAudioStream(fakeAudioStream);
-        setMyVideoStream(fakeVideoStream);
+        const fakeAudioTrack = createEmptyAudioTrack();
+        const fakeVideoTrack = createEmptyVideoTrack();
+        const stream = new MediaStream([fakeAudioTrack, fakeVideoTrack]);
+        setMyStream(stream);
         setAudioIsEnabled(false);
         setVideoIsEnabled(false);
         setAudioDevices([]);
@@ -175,8 +168,7 @@ export default function VoiceAndVideo({
   }, [hasJoined]);
 
   useEffect(() => {
-    if (!myVideoStream || !myAudioStream || myPeer.current !== undefined)
-      return;
+    if (!myStream || myPeer.current !== undefined) return;
 
     const socketConnection = io("http://localhost:3001");
     setSocket(socketConnection);
@@ -186,126 +178,61 @@ export default function VoiceAndVideo({
       socketConnection.emit("join-room", { userId: myId, roomId, name });
     });
     socketConnection.on("user-connected", ({ userId, name: userName }) => {
-      callPeer(userId, userName, myAudioStream, "audio");
-      callPeer(userId, userName, myVideoStream, "video");
+      callPeer(userId, userName, myStream);
+      // callPeer(userId, userName, myVideoStream, "video");
     });
     myPeer.current.on("call", (incomingCall) => {
-      const { type, callerId, name } = incomingCall.metadata;
-      answerCall(incomingCall, callerId, name, type);
+      const { callerId, name } = incomingCall.metadata;
+      answerCall(incomingCall, callerId, name);
     });
 
     socketConnection.on("user-disconnected", (userId) => {
-      const newAudio = { ...peerAudioStreams };
-      const newVideo = { ...peerVideoStreams };
-      delete newAudio[userId];
-      delete newVideo[userId];
-      setPeerAudioStreams(newAudio);
-      setPeerVideoStreams(newVideo);
+      const newStreams = { ...peerStreams };
+      delete newStreams[userId];
+      setPeerStreams(newStreams);
     });
-  }, [myAudioStream, myVideoStream]);
+  }, [myStream]);
 
-  function callPeer(peerId, peerName, myStream, type) {
-    if (type === "audio") {
-      const audioCall = myPeer.current.call(peerId, myStream, {
-        metadata: {
-          callerId: myPeerId.current,
-          type: "audio",
-          name,
-        },
+  const callPeer = (peerId, peerName, myStream) => {
+    const call = myPeer.current.call(peerId, myStream, {
+      metadata: { callerId: myPeerId.current, name },
+    });
+    call.on("error", (err) => {
+      console.log(err);
+    });
+    call.on("stream", (incomingStream) => {
+      setPeerStreams((currentStreams) => {
+        const newState = { ...currentStreams };
+        newState[peerId] = {
+          id: peerId,
+          name: peerName,
+          stream: incomingStream,
+        };
+        return newState;
       });
-      audioCall.on("error", (err) => {
-        console.log(err);
-      });
-      audioCall.on("stream", (otherStream) => {
-        setPeerAudioStreams((streams) => {
-          const newState = { ...streams };
-          newState[peerId] = {
-            id: peerId,
-            name: peerName,
-            stream: otherStream,
-          };
-          return newState;
-        });
-      });
-    }
-    if (type === "video") {
-      const videoCall = myPeer.current.call(peerId, myStream, {
-        metadata: {
-          callerId: myPeerId.current,
-          type: "video",
-          name,
-        },
-      });
-      videoCall.on("error", (err) => {
-        console.log(err);
-      });
-      videoCall.on("stream", (otherStream) => {
-        setPeerVideoStreams((streams) => {
-          const newState = { ...streams };
-          newState[peerId] = {
-            id: peerId,
-            name: peerName,
-            stream: otherStream,
-          };
-          return newState;
-        });
-      });
-    }
-  }
+    });
+  };
 
-  function answerCall(call, callerId, callerName, type) {
-    if (type === "audio") {
-      call.answer(myAudioStream);
-      call.on("stream", (incomingStream) => {
-        setPeerAudioStreams((streams) => {
-          const newState = { ...streams };
-          newState[callerId] = {
-            id: callerId,
-            name: callerName,
-            stream: incomingStream,
-          };
-          return newState;
-        });
+  function answerCall(call, callerId, callerName) {
+    call.answer(myStream);
+    call.on("stream", (incomingStream) => {
+      setPeerStreams((currentStreams) => {
+        const newState = { ...currentStreams };
+        newState[callerId] = {
+          id: callerId,
+          name: callerName,
+          stream: incomingStream,
+        };
+        return newState;
       });
-    }
-    if (type === "video") {
-      call.answer(myVideoStream);
-      call.on("stream", (incomingStream) => {
-        setPeerVideoStreams((streams) => {
-          const newState = { ...streams };
-          newState[callerId] = {
-            id: callerId,
-            name: callerName,
-            stream: incomingStream,
-          };
-          return newState;
-        });
-      });
-    }
+    });
   }
-  function renderPeerAudio() {
-    const peerAudioKeys = Object.keys(peerAudioStreams);
-    if (peerAudioKeys.length === 0) return null;
-    return peerAudioKeys.map((id, i) => (
-      <Audio key={i} stream={peerAudioStreams[id].stream} />
+  const renderPeerStreams = () => {
+    const keys = Object.keys(peerStreams);
+    if (keys.length === 0) return null;
+    return keys.map((k, i) => (
+      <Video stream={peerStreams[k].stream} name={peerStreams[k].name} />
     ));
-  }
-
-  const renderPeerVideo = () => {
-    const keys = Object.keys(peerVideoStreams);
-    if (keys.length === 0) {
-      return null;
-    }
-    return keys.map((k, i) => {
-      console.log(peerVideoStreams[k]);
-      return (
-        <Video
-          key={i}
-          name={peerVideoStreams[k].name}
-          stream={peerVideoStreams[k].stream}
-        />
-      );
-    });
   };
 
   function flipOrientation() {
@@ -317,29 +244,28 @@ export default function VoiceAndVideo({
   }
 
   const toggleAudio = () => {
-    if (myAudioStream.getAudioTracks()[0].enabled) {
-      myAudioStream.getAudioTracks()[0].enabled = false;
+    const audioTrack = myStream.getAudioTracks()[0];
+    if (audioTrack.enabled === true) {
+      audioTrack.enabled = false;
     } else {
-      myAudioStream.getAudioTracks()[0].enabled = true;
+      audioTrack.enabled = true;
     }
+
     setAudioIsEnabled((isEnabled) => !isEnabled);
   };
 
   const toggleVideo = () => {
-    if (myVideoStream.getVideoTracks()[0].enabled === false) {
-      myVideoStream.getVideoTracks()[0].enabled = true;
+    const videoTrack = myStream.getVideoTracks()[0];
+    if (videoTrack.enabled === true) {
+      videoTrack.enabled = false;
     } else {
-      myVideoStream.getVideoTracks()[0].enabled = false;
+      videoTrack.enabled = true;
     }
+
     setVideoIsEnabled((isEnabled) => !isEnabled);
   };
   return (
-    <Draggable
-      axis="both"
-      scale={1}
-      handle=".drag-handle"
-      bounaries="parent"
-    >
+    <Draggable axis="both" scale={1} handle=".drag-handle" bounaries="parent">
       <Container topBarHeight={topBarHeight}>
         <Header className="drag-handle" backgroundIsLight={backgroundIsLight}>
           <BarButtonContainer>
@@ -352,12 +278,8 @@ export default function VoiceAndVideo({
           Peers
           <div></div>
         </Header>
-        <div>
-          {myAudioStream ? <Audio name={name} stream={myAudioStream} /> : null}
-          {renderPeerAudio()}
-        </div>
         <VideoContainer orientation={orientation}>
-          {myVideoStream ? (
+          {myStream ? (
             <MyVideo
               name={name}
               toggleAudio={toggleAudio}
@@ -366,10 +288,10 @@ export default function VoiceAndVideo({
               audioDevices={audioDevices}
               videoDevices={videoDevices}
               toggleVideo={toggleVideo}
-              stream={myVideoStream}
+              stream={myStream}
             />
           ) : null}
-          {renderPeerVideo()}
+          {renderPeerStreams()}
         </VideoContainer>
       </Container>
     </Draggable>
