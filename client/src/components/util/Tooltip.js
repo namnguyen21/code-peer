@@ -13,14 +13,14 @@ const TooltipText = styled.span`
   top: 0;
   left: 0;
   transform: translate(-50%, -100%);
-  z-index: 11;
+  z-index: 99999999;
   white-space: nowrap;
 `;
 
 const Tooltip = styled.div`
   position: relative;
   display: inline-block;
-
+  z-index: 9999999;
   &:hover {
     ${TooltipText} {
       visibility: visible;

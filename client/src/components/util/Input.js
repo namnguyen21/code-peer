@@ -10,7 +10,7 @@ const StyledInput = styled.input`
   margin: 5px 1px 3px 0px; */
   padding: 5px 0 5px 5px;
   border-radius: 2px;
-  border: 1px solid #fff;
+  border: 1px solid #ccc;
   outline: none;
   transition: all 0.3s ease-in-out;
 

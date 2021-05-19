@@ -3,7 +3,7 @@ import Peer from "peerjs";
 import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import Draggable from "react-draggable";
-import { AiOutlineRotateLeft } from "react-icons/ai";
+import { AiOutlineRotateLeft, AiOutlineMinus } from "react-icons/ai";
 
 import Video from "./Video";
 import MyVideo from "./MyVideo";
@@ -12,19 +12,21 @@ import { createEmptyAudioTrack, createEmptyVideoTrack } from "./fakeStreams";
 
 const Container = styled.div`
   position: absolute;
-  top: ${(props) => `${props.top}px`};
-  left: ${(props) => `${props.left}px`};
-  z-index: 10;
+  /* top: ${(props) => `${props.top}px`};
+  left: ${(props) => `${props.left}px`}; */
+  top: ${props => `calc(60px + ${props.topBarHeight}px)`};
+  left: 50%;
+  z-index: 999999;
   left: 50%;
   top: ${(props) => `${props.topBarHeight}px`};
+  display: ${(props) => (props.videoOpen ? null : "none")};
 `;
 
 const Header = styled.div`
   width: 100%;
   padding: 5px;
   font-size: 0.8rem;
-  background-color: ${(props) =>
-    props.backgroundIsLight ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.1)"};
+  background-color: ${(props) => props.theme.colors.paper};
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   text-align: center;
@@ -79,6 +81,9 @@ const BarButton = styled.button`
   &:hover {
     color: ${(props) => props.theme.colors.green.main};
   }
+  &:not(:last-child) {
+    margin-right: 5px;
+  }
 `;
 
 export default function VoiceAndVideo({
@@ -88,6 +93,8 @@ export default function VoiceAndVideo({
   backgroundIsLight,
   topBarHeight,
   hasJoined,
+  videoOpen,
+  setVideoOpen,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
@@ -235,13 +242,13 @@ export default function VoiceAndVideo({
     ));
   };
 
-  function flipOrientation() {
+  const flipOrientation = () => {
     if (orientation === "horizontal") {
       setOrientation("vertical");
     } else {
       setOrientation("horizontal");
     }
-  }
+  };
 
   const toggleAudio = () => {
     const audioTrack = myStream.getAudioTracks()[0];
@@ -264,14 +271,23 @@ export default function VoiceAndVideo({
 
     setVideoIsEnabled((isEnabled) => !isEnabled);
   };
+
+  const onHide = () => {
+    setVideoOpen(false);
+  };
   return (
     <Draggable axis="both" scale={1} handle=".drag-handle" bounaries="parent">
-      <Container topBarHeight={topBarHeight}>
+      <Container videoOpen={videoOpen} topBarHeight={topBarHeight}>
         <Header className="drag-handle" backgroundIsLight={backgroundIsLight}>
           <BarButtonContainer>
             <Tooltip tip="Rotate Orientation">
               <BarButton onClick={flipOrientation}>
                 <AiOutlineRotateLeft />
+              </BarButton>
+            </Tooltip>
+            <Tooltip tip="Hide">
+              <BarButton onClick={onHide}>
+                <AiOutlineMinus />
               </BarButton>
             </Tooltip>
           </BarButtonContainer>

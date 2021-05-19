@@ -1,14 +1,17 @@
 import { useParams, Redirect } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useCallback } from "react";
 import styled from "styled-components";
-import { HiOutlineChat } from "react-icons/hi";
+import { HiOutlineChat, HiOutlineVideoCamera } from "react-icons/hi";
 
 import CodeEditor from "./CodeEditor";
 import VoiceAndVideo from "./VoiceAndVideo";
 import Chat from "./Chat";
-import Modal from "./Modal";
+import PromptModal from "./Modals/PromptModal";
+import InviteModal from "./Modals/InviteModal";
+import Tooltip from "../util/Tooltip";
 import useInput from "../../hooks/useInput";
 import useValidRoom from "../../hooks/useValidRoom";
+import useOpenElement from "../../hooks/useOpenElement";
 
 const Container = styled.main`
   height: 100vh;
@@ -27,7 +30,20 @@ const CodeContainer = styled.div`
   height: calc(100vh - 60px);
 `;
 
-const ChatButton = styled.button`
+const UtilityButtonContainer = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  bottom: 75px;
+  right: 50px;
+  > *:not(:last-child) {
+    margin-bottom: 10px;
+  }
+`;
+
+const CircleButton = styled.button`
   height: 60px;
   width: 60px;
   border-radius: 50%;
@@ -37,9 +53,6 @@ const ChatButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  bottom: 100px;
-  right: 50px;
   color: ${(props) => props.theme.colors.white};
   font-size: 35px;
   cursor: pointer;
@@ -54,12 +67,18 @@ export default function Index() {
   const [socket, setSocket] = useState();
   const [hasJoined, setHasJoined] = useState(false);
   const [topBarHeight, setTopBarHeight] = useState(0);
-  const [myVideoStream, setMyVideoStream] = useState();
-  const [myAudioStream, setMyAudioStream] = useState();
   const [backgroundIsLight, setBackgroundIsLight] = useState(true);
-  const [chatOpen, setChatOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useOpenElement(false);
+  const [videoOpen, setVideoOpen] = useOpenElement(true);
+  const [inviteModalOpen, setInviteModalOpen] = useOpenElement(false);
+
   const name = useInput("");
   const { isValidRoom, color } = useValidRoom(roomId);
+
+  const settingsRef = useCallback((node) => {
+    if (!node) return;
+    setTopBarHeight(node.getBoundingClientRect().height);
+  }, []);
 
   if (isValidRoom === null) {
     return <Container></Container>;
@@ -71,40 +90,46 @@ export default function Index() {
 
   if (!hasJoined)
     return (
-      <Modal name={name} hasJoined={hasJoined} setHasJoined={setHasJoined} />
+      <PromptModal
+        name={name}
+        hasJoined={hasJoined}
+        setHasJoined={setHasJoined}
+      />
     );
 
   return (
     <Container>
+      {inviteModalOpen ? (
+        <InviteModal setInviteModalOpen={setInviteModalOpen} isOpen={true} />
+      ) : null}
       <CodeContainer chatOpen={chatOpen}>
         <CodeEditor
+          topBarHeight={topBarHeight}
+          settingsRef={settingsRef}
           socket={socket}
           setBackgroundIsLight={setBackgroundIsLight}
           chatOpen={chatOpen}
-          topBarHeight={topBarHeight}
           roomId={roomId}
           name={name.value}
           color={color}
+          setInviteModalOpen={setInviteModalOpen}
         ></CodeEditor>
       </CodeContainer>
 
       <Chat
+        backgroundIsLight={backgroundIsLight}
         color={color}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
-        topBarHeight={topBarHeight}
-        setTopBarHeight={setTopBarHeight}
         socket={socket}
         name={name.value}
         roomId={roomId}
       />
 
       <VoiceAndVideo
+        videoOpen={videoOpen}
+        setVideoOpen={setVideoOpen}
         color={color}
-        myAudioStream={myAudioStream}
-        setMyAudioStream={setMyAudioStream}
-        myVideoStream={myVideoStream}
-        setMyVideoStream={setMyVideoStream}
         socket={socket}
         setSocket={setSocket}
         hasJoined={hasJoined}
@@ -113,9 +138,18 @@ export default function Index() {
         backgroundIsLight={backgroundIsLight}
         topBarHeight={topBarHeight}
       />
-      <ChatButton onClick={() => setChatOpen((isOpen) => !isOpen)}>
-        <HiOutlineChat />
-      </ChatButton>
+      <UtilityButtonContainer>
+        <Tooltip tip={chatOpen ? "Hide Chat" : "Open Chat"}>
+          <CircleButton onClick={() => setChatOpen((isOpen) => !isOpen)}>
+            <HiOutlineChat />
+          </CircleButton>
+        </Tooltip>
+        <Tooltip tip={videoOpen ? "Hide Video" : "Open Video"}>
+          <CircleButton onClick={() => setVideoOpen((isOpen) => !isOpen)}>
+            <HiOutlineVideoCamera />
+          </CircleButton>
+        </Tooltip>
+      </UtilityButtonContainer>
     </Container>
   );
 }

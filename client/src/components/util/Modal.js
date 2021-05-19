@@ -9,21 +9,25 @@ const StyledModal = styled(ReactModal)`
   left: 50%;
   transform: translateX(-50%);
   border-radius: 5px;
+  z-index: 99999999999;
   &:focus {
     outline: none;
     border: none;
   }
 `;
 
-export default function Modal({ isOpen, children }) {
+export default function Modal({ isOpen, children, shouldCloseOnOverlayClick, onRequestClose }) {
   return (
     <StyledModal
       style={{
         overlay: {
-          backgroundColor: "rgba(0,0,0,0.1)",
+          backgroundColor: "rgba(0,0,0,0.9)",
+          zIndex: "99999999",
         },
       }}
       isOpen={isOpen}
+      shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
+      onRequestClose={onRequestClose}
     >
       {children}
     </StyledModal>

@@ -7,7 +7,10 @@ import useInput from "../../../hooks/useInput";
 
 const ChatContainer = styled.div`
   width: 300px;
-  background-color: ${(props) => props.theme.colors.lightGrey};
+  background-color: ${(props) =>
+    props.backgroundIsLight
+      ? props.theme.colors.lightGrey
+      : props.theme.colors.white};
   position: absolute;
   bottom: 0;
   right: 150px;
@@ -17,13 +20,14 @@ const ChatContainer = styled.div`
   transition: opacity 0.4s, transform 0.2s;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  -webkit-box-shadow: 0px -1px 38px -11px #3a3a3a;
-  box-shadow: 0px -1px 38px -11px #3a3a3a;
 `;
 
 const ChatHeader = styled.div`
   height: 45px;
-  background: ${(props) => props.theme.colors.paper};
+  background-color: ${(props) =>
+    props.backgroundIsLight
+      ? props.theme.colors.paper
+      : props.theme.colors.lightGrey};
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   display: flex;
@@ -44,7 +48,7 @@ const MessageContainer = styled.div`
   width: 100%;
   background: transparent;
   padding: 10px;
-  >*:not(:last-child) {
+  > *:not(:last-child) {
     margin-bottom: 10px;
   }
 `;
@@ -52,7 +56,14 @@ const MessageContainer = styled.div`
 const ChatBox = styled.div`
   height: 55px;
   width: 100%;
-  background: ${(props) => props.theme.colors.paper};
+  border: ${(props) =>
+    props.backgroundIsLight
+      ? `solid 1px ${props.theme.colors.paper}`
+      : "solid 1px #ccc"};
+  background-color: ${(props) =>
+    props.backgroundIsLight
+      ? props.theme.colors.paper
+      : props.theme.colors.white};
 `;
 
 const ChatForm = styled.form`
@@ -80,7 +91,10 @@ const Message = styled.div`
 
 const MessageAuthor = styled.p`
   font-size: 0.8rem;
-  color: ${(props) => props.theme.colors.white};
+  color: ${(props) =>
+    props.backgroundIsLight
+      ? props.theme.colors.white
+      : props.theme.colors.lightGrey};
   margin-bottom: 5px;
 `;
 
@@ -99,8 +113,7 @@ export default function Chat({
   name,
   roomId,
   socket,
-  topBarHeight,
-  setTopBarHeight,
+  backgroundIsLight,
   chatOpen,
   setChatOpen,
   color,
@@ -108,7 +121,6 @@ export default function Chat({
   const [messages, setMessages] = useState([]);
   const chatBox = useInput("");
   const messagesContainerRef = useRef();
-  console.log(color);
   // incoming message listener
   useEffect(() => {
     if (!socket) return;
@@ -139,21 +151,26 @@ export default function Chat({
 
     return messages.map((mes, i) => (
       <Message key={i}>
-        <MessageAuthor>{mes.name}:</MessageAuthor>
+        <MessageAuthor backgroundIsLight={backgroundIsLight}>
+          {mes.name}:
+        </MessageAuthor>
         <MessageContent color={mes.color}>{mes.message}</MessageContent>
       </Message>
     ));
   };
 
   return (
-    <ChatContainer chatOpen={chatOpen}>
-      <ChatHeader>
+    <ChatContainer backgroundIsLight={backgroundIsLight} chatOpen={chatOpen}>
+      <ChatHeader backgroundIsLight={backgroundIsLight}>
         <ChatHeading>Chat</ChatHeading>
       </ChatHeader>
-      <MessageContainer ref={messagesContainerRef}>
+      <MessageContainer
+        backgroundIsLight={backgroundIsLight}
+        ref={messagesContainerRef}
+      >
         {renderChatMessages()}
       </MessageContainer>
-      <ChatBox>
+      <ChatBox backgroundIsLight={backgroundIsLight}>
         <ChatForm onSubmit={handleSubmit}>
           <Input value={chatBox.value} onChange={chatBox.onChange} />
           <SendButton onClick={handleSubmit}>

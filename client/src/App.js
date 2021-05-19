@@ -10,7 +10,7 @@ import ErrorPage from "./components/404";
 
 const THEME = {
   colors: {
-    paper: "#23272A",
+    paper: "#23272a",
     white: "#ffffff",
     lightGrey: "#2C2F33",
     green: { main: "#1aff53", light: "#99ffb3" },

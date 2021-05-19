@@ -6,6 +6,7 @@ const Nav = styled.nav`
   background-color: ${(props) => props.theme.colors.paper};
   display: flex;
   align-items: center;
+  z-index: 1;
 `;
 
 const Logo = styled.h1`

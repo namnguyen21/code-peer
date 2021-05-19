@@ -3,6 +3,7 @@ import { Controlled as CodeMirror } from "react-codemirror2";
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/edit/matchbrackets";
 import "codemirror/addon/edit/closebrackets";
+import "codemirror/addon/selection/active-line";
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { CodemirrorBinding } from "y-codemirror";
@@ -24,11 +25,13 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/python/python";
 import "codemirror/mode/htmlmixed/htmlmixed";
 
-import Select from "../util/Select";
+import Select from "../../util/Select";
+import Button from "../../util/Button";
 
 import "./CodeEditor.css";
 
 const Container = styled.section`
+  height: 100%;
   max-height: 100%;
   width: ${(props) => (props.chatOpen ? "100%" : "100vw")};
   transition: all 0.2s;
@@ -62,6 +65,8 @@ export default function CodeEditor({
   setBackgroundIsLight,
   socket,
   color,
+  settingsRef,
+  setInviteModalOpen,
 }) {
   const [editorValue, setEditorValue] = useState("");
   const [theme, setTheme] = useState({
@@ -152,9 +157,13 @@ export default function CodeEditor({
     socket.emit("mode-change", { roomId, mode: lang.value });
   }
 
+  const onInvite = () => {
+    setInviteModalOpen(true);
+  };
+
   return (
     <Container chatOpen={chatOpen} className="code-container">
-      <Settings topBarHeight={topBarHeight}>
+      <Settings ref={settingsRef}>
         <div>
           <Label>Theme: </Label>
           <Select
@@ -170,6 +179,9 @@ export default function CodeEditor({
             setValue={handleModeChange}
             options={modesRef.current}
           />
+        </div>
+        <div>
+          <Button onClick={onInvite}>Invite Peers</Button>
         </div>
       </Settings>
       <EditorContainer topBarHeight={topBarHeight}>
@@ -187,6 +199,8 @@ export default function CodeEditor({
             theme: theme.value,
             autoCloseBrackets: true,
             matchBrackets: true,
+            styleActiveLine: true,
+            styleActiveSelected: true,
             indentUnit: 4,
           }}
         />
