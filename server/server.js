@@ -6,12 +6,12 @@ const server = require("http").createServer(app);
 const cors = require("cors");
 require("dotenv").config();
 
-const redis = require("redis");
+// const redis = require("redis");
 
-const redisClient = redis.createClient();
-redisClient.on("error", (err) => {
-  console.log(err);
-});
+// const redisClient = redis.createClient();
+// redisClient.on("error", (err) => {
+//   console.log(err);
+// });
 
 const io = require("socket.io")(server, { cors: { origin: "*" } });
 
