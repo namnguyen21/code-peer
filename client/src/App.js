@@ -29,6 +29,7 @@ const Main = styled.div`
 `;
 
 function App() {
+  console.log(process.env);
   return (
     <ThemeProvider theme={THEME}>
       <Main style={{ backgroundColor: "#23272A" }} className="App">

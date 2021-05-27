@@ -10,7 +10,9 @@ export default function RoomCreate() {
 
   useEffect(() => {
     const createRoomId = async () => {
-      const { data } = await axios.get("http://localhost:3001/room/create");
+      const { data } = await axios.get(
+        process.env.REACT_APP_API_URL + "/room/create"
+      );
       setRoomId(data.roomID);
     };
     createRoomId();

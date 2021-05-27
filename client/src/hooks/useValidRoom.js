@@ -6,7 +6,7 @@ const useValidRoom = (roomID) => {
   const [color, setColor] = useState("");
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/room/join/${roomID}`).then((response) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/room/join/${roomID}`).then((response) => {
       if (response.data.error) {
         setIsValidRoom(false);
       } else {

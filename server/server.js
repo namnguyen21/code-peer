@@ -2,8 +2,7 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 const server = require("http").createServer(app);
-const mysql = require("mysql2/promise");
-const { v4: uuid } = require("uuid");
+// const mysql = require("mysql2/promise");
 const cors = require("cors");
 require("dotenv").config();
 
