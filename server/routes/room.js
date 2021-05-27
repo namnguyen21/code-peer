@@ -15,7 +15,7 @@ const colors = [
   "#637983",
 ];
 
-const client = redis.createClient();
+const client = redis.createClient(process.env.REDIS_ENDPOINT || "");
 
 client.on("error", (err) => {
   console.log(err);
