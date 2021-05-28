@@ -41,6 +41,9 @@ app.use(cors());
 
 app.use("/room", require("./routes/room"));
 
+app.get("/test", (req, res) => {
+  console.log("hitting endpoint");
+});
 
 server.listen(8080, () => {
   console.log("SERVER NOW LISTENING ON PORT 8080");
