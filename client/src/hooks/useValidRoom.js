@@ -6,14 +6,20 @@ const useValidRoom = (roomID) => {
   const [color, setColor] = useState("");
 
   useEffect(() => {
-    axios.get(`http://${process.env.REACT_APP_API_URL}/room/join/${roomID}`).then((response) => {
-      if (response.data.error) {
-        setIsValidRoom(false);
-      } else {
-        setIsValidRoom(true);
-        setColor(response.data.color);
-      }
-    });
+    axios
+      .get(
+        `http://${
+          process.env.API_ENDPOINT || "http://localhost:3001"
+        }/room/join/${roomID}`
+      )
+      .then((response) => {
+        if (response.data.error) {
+          setIsValidRoom(false);
+        } else {
+          setIsValidRoom(true);
+          setColor(response.data.color);
+        }
+      });
   }, []);
 
   return { isValidRoom, color };
