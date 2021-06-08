@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { HiChatAlt2, HiMicrophone, HiVideoCamera } from "react-icons/hi";
-import useVideoCallback from '../../../hooks/useVideoCallback'
+import useVideoCallback from "../../../hooks/useVideoCallback";
 
 const VideoContainer = styled.div`
   background-color: #000;
@@ -48,9 +48,11 @@ const Button = styled.button`
   z-index: 5;
   cursor: pointer;
   transition: all 0.2s;
-  &:hover {
-    background-color: ${(props) =>
-      props.disabled ? "red" : props.isOn ? "red" : "green"};
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${(props) =>
+        props.disabled ? "red" : props.isOn ? "red" : "green"};
+    }
   }
 `;
 

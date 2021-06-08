@@ -16,6 +16,7 @@ const colors = [
 ];
 
 const client = redis.createClient(process.env.REDIS_ENDPOINT);
+client.auth(process.env.REDIS_PASSWORD);
 
 client.on("error", (err) => {
   console.log(err);

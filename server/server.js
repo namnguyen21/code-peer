@@ -41,7 +41,8 @@ app.use(cors());
 
 app.use("/room", require("./routes/room"));
 
+const PORT = 8080;
 
-server.listen(443, () => {
-  console.log("SERVER NOW LISTENING ON PORT 443");
+server.listen(process.env.PORT || PORT, () => {
+  console.log("SERVER NOW LISTENING");
 });

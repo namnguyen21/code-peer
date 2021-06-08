@@ -2,11 +2,12 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import GlobalStyle from "./GlobalStyles";
 
+import ValidDeviceRoute from "./components/ProtectedRoutes/ValidDevice";
 import Nav from "./components/Nav";
 import Room from "./components/Room";
 import Home from "./components/Home";
 import RoomCreate from "./components/RoomCreate";
-import ErrorPage from "./components/404";
+import ErrorPage from "./components//Errors/404";
 
 const THEME = {
   colors: {
@@ -29,7 +30,6 @@ const Main = styled.div`
 `;
 
 function App() {
-  console.log(process.env);
   return (
     <ThemeProvider theme={THEME}>
       <Main style={{ backgroundColor: "#23272A" }} className="App">
@@ -38,10 +38,10 @@ function App() {
         <Router>
           <Switch>
             <Route path="/room/create">
-              <RoomCreate />
+              <ValidDeviceRoute component={<RoomCreate />} />
             </Route>
             <Route path="/room/:id">
-              <Room />
+              <ValidDeviceRoute component={<Room />} />
             </Route>
             <Route path="/404">
               <ErrorPage />

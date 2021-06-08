@@ -12,9 +12,7 @@ import { createEmptyAudioTrack, createEmptyVideoTrack } from "./fakeStreams";
 
 const Container = styled.div`
   position: absolute;
-  /* top: ${(props) => `${props.top}px`};
-  left: ${(props) => `${props.left}px`}; */
-  top: ${props => `calc(60px + ${props.topBarHeight}px)`};
+  top: ${(props) => `calc(60px + ${props.topBarHeight}px)`};
   left: 50%;
   z-index: 999999;
   left: 50%;
@@ -177,7 +175,7 @@ export default function VoiceAndVideo({
   useEffect(() => {
     if (!myStream || myPeer.current !== undefined) return;
 
-    const socketConnection = io("http://localhost:3001");
+    const socketConnection = io(process.env.REACT_APP_API_URL);
     setSocket(socketConnection);
     myPeer.current = new Peer();
     myPeer.current.on("open", (myId) => {
@@ -276,7 +274,7 @@ export default function VoiceAndVideo({
     setVideoOpen(false);
   };
   return (
-    <Draggable axis="both" scale={1} handle=".drag-handle" bounaries="parent">
+    <Draggable axis="both" scale={1} handle=".drag-handle" bounds="parent">
       <Container videoOpen={videoOpen} topBarHeight={topBarHeight}>
         <Header className="drag-handle" backgroundIsLight={backgroundIsLight}>
           <BarButtonContainer>

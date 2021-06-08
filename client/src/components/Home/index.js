@@ -33,9 +33,10 @@ export default function Index() {
   return (
     <div>
       <HeroSection>
-        <Button color="blue">
-          <Link to={`/room/create`}>Create a room</Link>
-        </Button>
+        <Link to={`/room/create`}>
+          <Button color="blue">Create a room</Button>
+        </Link>
+
         <Demo />
         {/* <HeroIllustration alt="Code Peer Illustration" src={Illustration} /> */}
       </HeroSection>
