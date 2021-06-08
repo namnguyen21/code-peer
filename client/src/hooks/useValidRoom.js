@@ -7,7 +7,11 @@ const useValidRoom = (roomID) => {
 
   useEffect(() => {
     axios
-      .get(process.env.REACT_APP_API_URL + "/room/join/" + roomID)
+      .get(
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:8080/room/join"
+          : `${process.env.REACT_APP_API_URL}/room/join`
+      )
       .then((response) => {
         if (response.data.error) {
           setIsValidRoom(false);

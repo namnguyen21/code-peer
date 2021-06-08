@@ -11,7 +11,9 @@ export default function RoomCreate() {
   useEffect(() => {
     const createRoomId = async () => {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API_URL}/room/create`
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:8080/room/create"
+          : `${process.env.REACT_APP_API_URL}/room/create`
       );
       setRoomId(data.roomID);
     };

@@ -93,6 +93,7 @@ export default function VoiceAndVideo({
   hasJoined,
   videoOpen,
   setVideoOpen,
+  color,
 }) {
   const myPeer = useRef();
   const myPeerId = useRef();
@@ -103,7 +104,7 @@ export default function VoiceAndVideo({
   const [myStream, setMyStream] = useState();
   const [peerStreams, setPeerStreams] = useState({});
   const [orientation, setOrientation] = useState("horizontal");
-
+  console.log(peerStreams);
   useEffect(() => {
     if (!hasJoined) return;
     async function getMediaStreams() {
@@ -180,15 +181,18 @@ export default function VoiceAndVideo({
     myPeer.current = new Peer();
     myPeer.current.on("open", (myId) => {
       myPeerId.current = myId;
-      socketConnection.emit("join-room", { userId: myId, roomId, name });
+      socketConnection.emit("join-room", { userId: myId, roomId, name, color });
     });
-    socketConnection.on("user-connected", ({ userId, name: userName }) => {
-      callPeer(userId, userName, myStream);
-      // callPeer(userId, userName, myVideoStream, "video");
-    });
+    socketConnection.on(
+      "user-connected",
+      ({ userId, name: userName, color }) => {
+        callPeer(userId, userName, myStream);
+        // callPeer(userId, userName, myVideoStream, "video");
+      }
+    );
     myPeer.current.on("call", (incomingCall) => {
-      const { callerId, name } = incomingCall.metadata;
-      answerCall(incomingCall, callerId, name);
+      const { callerId, name, color } = incomingCall.metadata;
+      answerCall(incomingCall, callerId, name, color);
     });
 
     socketConnection.on("user-disconnected", (userId) => {
@@ -200,7 +204,7 @@ export default function VoiceAndVideo({
 
   const callPeer = (peerId, peerName, myStream) => {
     const call = myPeer.current.call(peerId, myStream, {
-      metadata: { callerId: myPeerId.current, name },
+      metadata: { callerId: myPeerId.current, name, color },
     });
     call.on("error", (err) => {
       console.log(err);
@@ -218,7 +222,7 @@ export default function VoiceAndVideo({
     });
   };
 
-  function answerCall(call, callerId, callerName) {
+  function answerCall(call, callerId, callerName, color) {
     call.answer(myStream);
     call.on("stream", (incomingStream) => {
       setPeerStreams((currentStreams) => {
@@ -227,6 +231,7 @@ export default function VoiceAndVideo({
           id: callerId,
           name: callerName,
           stream: incomingStream,
+          color,
         };
         return newState;
       });
@@ -236,7 +241,11 @@ export default function VoiceAndVideo({
     const keys = Object.keys(peerStreams);
     if (keys.length === 0) return null;
     return keys.map((k, i) => (
-      <Video stream={peerStreams[k].stream} name={peerStreams[k].name} />
+      <Video
+        stream={peerStreams[k].stream}
+        color={peerStreams[k].color}
+        name={peerStreams[k].name}
+      />
     ));
   };
 
@@ -293,18 +302,17 @@ export default function VoiceAndVideo({
           <div></div>
         </Header>
         <VideoContainer orientation={orientation}>
-          {myStream ? (
-            <MyVideo
-              name={name}
-              toggleAudio={toggleAudio}
-              audioIsEnabled={audioIsEnabled}
-              videoIsEnabled={videoIsEnabled}
-              audioDevices={audioDevices}
-              videoDevices={videoDevices}
-              toggleVideo={toggleVideo}
-              stream={myStream}
-            />
-          ) : null}
+          <MyVideo
+            name={name}
+            toggleAudio={toggleAudio}
+            audioIsEnabled={audioIsEnabled}
+            videoIsEnabled={videoIsEnabled}
+            audioDevices={audioDevices}
+            videoDevices={videoDevices}
+            toggleVideo={toggleVideo}
+            stream={myStream}
+            color={color}
+          />
           {renderPeerStreams()}
         </VideoContainer>
       </Container>

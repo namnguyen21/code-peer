@@ -9,6 +9,13 @@ const VideoContainer = styled.div`
   position: relative;
 `;
 
+const Filler = styled.div`
+  height: 200px;
+  width: 200px;
+  background-color: #000;
+  position: absolute;
+`;
+
 const Video = styled.video`
   height: 100%;
   width: 100%;
@@ -58,7 +65,7 @@ const Button = styled.button`
 
 const NameTag = styled.p`
   position: absolute;
-  background-color: rgba(114, 137, 218, 0.7);
+  background-color: ${(props) => props.color};
   position: absolute;
   color: white;
   display: inline;
@@ -69,7 +76,7 @@ const NameTag = styled.p`
   font-size: 0.8rem;
 `;
 
-function IconButton({ isOn, disabled, onClick, children }) {
+function IconButton({ isOn, disabled, onClick, children, color }) {
   return (
     <Button disabled={disabled} isOn={isOn} onClick={disabled ? null : onClick}>
       {children}
@@ -86,34 +93,42 @@ export default function MyVideo({
   videoIsEnabled,
   audioDevices,
   videoDevices,
+  color,
 }) {
   const videoRef = useVideoCallback(stream);
   return (
     <VideoContainer>
-      <Video autoPlay ref={videoRef} />
-      <ButtonContainer>
-        <IconButton
-          disabled={audioDevices.length === 0}
-          isOn={audioIsEnabled}
-          onClick={toggleAudio}
-        >
-          <HiMicrophone />
-        </IconButton>
-        <IconButton
-          disabled={videoDevices.length === 0}
-          isOn={videoIsEnabled}
-          onClick={toggleVideo}
-        >
-          <HiVideoCamera />
-        </IconButton>
-        {/* <IconButton onClick={toggleAudio}>
+      {stream ? (
+        <>
+          <Video autoPlay ref={videoRef} />
+          <ButtonContainer>
+            <IconButton
+              disabled={audioDevices.length === 0}
+              isOn={audioIsEnabled}
+              onClick={toggleAudio}
+            >
+              <HiMicrophone />
+            </IconButton>
+            <IconButton
+              disabled={videoDevices.length === 0}
+              isOn={videoIsEnabled}
+              onClick={toggleVideo}
+            >
+              <HiVideoCamera />
+            </IconButton>
+            {/* <IconButton onClick={toggleAudio}>
           <HiMicrophone />
         </IconButton>
         <IconButton onClick={toggleVideo}>
           <HiVideoCamera />
         </IconButton> */}
-      </ButtonContainer>
-      <NameTag>{name}</NameTag>
+          </ButtonContainer>
+        </>
+      ) : (
+        <Filler />
+      )}
+
+      <NameTag color={color}>{name}</NameTag>
     </VideoContainer>
   );
 }

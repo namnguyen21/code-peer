@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import useVideoCallback from '../../../hooks/useVideoCallback'
+import useVideoCallback from "../../../hooks/useVideoCallback";
 
 const Video = styled.video`
   height: 100%;
@@ -14,9 +14,15 @@ const VideoContainer = styled.div`
   position: relative;
 `;
 
+const Filler = styled.div`
+  height: 200px;
+  width: 200px;
+  background-color: #000;
+`;
+
 const NameTag = styled.p`
   position: absolute;
-  background-color: rgba(114, 137, 218, 0.7);
+  background-color: ${(props) => props.color};
   position: absolute;
   color: white;
   display: inline;
@@ -27,13 +33,17 @@ const NameTag = styled.p`
   font-size: 0.8rem;
 `;
 
-export default function Component({ stream, className, name }) {
-
-  const videoRef = useVideoCallback(stream)
+export default function Component({ stream, className, name, color }) {
+  const videoRef = useVideoCallback(stream);
 
   return (
     <VideoContainer>
-      <Video autoPlay className={className} ref={videoRef} />
+      {stream ? (
+        <Video autoPlay color={color} className={className} ref={videoRef} />
+      ) : (
+        <Filler />
+      )}
+
       <NameTag>{name}</NameTag>
     </VideoContainer>
   );
