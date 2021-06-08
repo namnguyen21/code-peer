@@ -21,11 +21,12 @@ client.on("error", (err) => {
   console.log(err);
 });
 
-const set = promisify(client.set).bind(client);
 const setex = promisify(client.setex).bind(client);
 const exists = promisify(client.exists).bind(client);
 const increment = promisify(client.incr).bind(client);
-const decr = promisify(client.decr).bind(client);
+const rpush = promisify(client.rpush).bind(client);
+const lrange = promisify(client.lrange).bind(client);
+const expire = promisify(client.expire).bind(client);
 
 async function createUniqueID(req, res, next) {
   const id = uuid();
@@ -48,11 +49,7 @@ async function createUniqueID(req, res, next) {
 router.get("/create", createUniqueID, async (req, res) => {
   const newID = uuid();
   try {
-    const results = await setex(
-      `members:${newID}`,
-      3600 * HOURS_TILL_EXPIRATION,
-      0
-    );
+    await setex(`members:${newID}`, 3600 * HOURS_TILL_EXPIRATION, 0);
     res.json({ roomID: newID });
   } catch (err) {
     if (err) {
@@ -75,6 +72,36 @@ router.get("/join/:roomID", async (req, res) => {
       const color = colors[(numOfMembers % 6) - 1];
       res.json({ color: color });
     }
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+router.get("/:id/chat", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const results = await lrange(`messages:${id}`, 0, -1);
+    for (let i = 0; i < results.length; i++) {
+      results[i] = JSON.parse(results[i]);
+    }
+    res.json(results);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+router.post("/:id/chat", async (req, res) => {
+  const { id } = req.params;
+  const content = JSON.stringify(req.body);
+  try {
+    const doesExist = await exists(`messages:${id}`);
+    await rpush(`messages:${id}`, content);
+    if (doesExist === 0) {
+      await expire(`messages:${id}`, 3600 * HOURS_TILL_EXPIRATION);
+    }
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     res.sendStatus(500);

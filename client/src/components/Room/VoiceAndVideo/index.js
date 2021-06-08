@@ -104,7 +104,6 @@ export default function VoiceAndVideo({
   const [myStream, setMyStream] = useState();
   const [peerStreams, setPeerStreams] = useState({});
   const [orientation, setOrientation] = useState("horizontal");
-  console.log(peerStreams);
   useEffect(() => {
     if (!hasJoined) return;
     async function getMediaStreams() {
@@ -184,7 +183,6 @@ export default function VoiceAndVideo({
       socketConnection.emit("join-room", { userId: myId, roomId, name });
     });
     socketConnection.on("user-connected", ({ userId, name: userName }) => {
-      console.log(color);
       callPeer(userId, userName, myStream);
     });
     myPeer.current.on("call", (incomingCall) => {

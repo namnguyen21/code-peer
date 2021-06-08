@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { FiSend } from "react-icons/fi";
+import axios from "axios";
 
 import Input from "../../util/Input";
 import useInput from "../../../hooks/useInput";
@@ -121,6 +122,22 @@ export default function Chat({
   const [messages, setMessages] = useState([]);
   const chatBox = useInput("");
   const messagesContainerRef = useRef();
+
+  // retrieve all messages on mount
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data } = await axios.get(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:8080/room/${roomId}/chat`
+          : process.env.REACT_APP_API_URL + `/room/${roomId}/chat`
+      );
+      if (data.length > 0) {
+        setMessages(data);
+      }
+    };
+    fetchMessages();
+  }, []);
+
   // incoming message listener
   useEffect(() => {
     if (!socket) return;
@@ -136,13 +153,19 @@ export default function Chat({
       messagesContainerRef.current.scrollHeight;
   }, [chatOpen, messages]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (chatBox.value.trim().length === 0) return;
     const newMessage = { roomId, name, message: chatBox.value, color };
     socket.emit("chat-send", newMessage);
     setMessages((messages) => [...messages, newMessage]);
     chatBox.setValue("");
+    await axios.post(
+      process.env.NODE_ENV === "development"
+        ? `http://localhost:8080/room/${roomId}/chat`
+        : `${process.env.REACT_APP_API_URL}/room/${roomId}/chat`,
+      { message: chatBox.value, name, color }
+    );
   };
   const renderChatMessages = () => {
     if (messages.length === 0) {
