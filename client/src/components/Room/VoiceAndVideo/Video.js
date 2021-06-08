@@ -20,31 +20,18 @@ const Filler = styled.div`
   background-color: #000;
 `;
 
-const NameTag = styled.p`
-  position: absolute;
-  background-color: ${(props) => props.color};
-  position: absolute;
-  color: white;
-  display: inline;
-  padding: 2px 10px;
-  z-index: 2;
-  bottom: 5px;
-  left: 5px;
-  font-size: 0.8rem;
-`;
 
-export default function Component({ stream, className, name, color }) {
+export default function Component({ stream, className}) {
   const videoRef = useVideoCallback(stream);
 
   return (
     <VideoContainer>
       {stream ? (
-        <Video autoPlay color={color} className={className} ref={videoRef} />
+        <Video autoPlay className={className} ref={videoRef} />
       ) : (
         <Filler />
       )}
 
-      <NameTag>{name}</NameTag>
     </VideoContainer>
   );
 }

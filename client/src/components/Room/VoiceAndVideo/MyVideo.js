@@ -63,19 +63,6 @@ const Button = styled.button`
   }
 `;
 
-const NameTag = styled.p`
-  position: absolute;
-  background-color: ${(props) => props.color};
-  position: absolute;
-  color: white;
-  display: inline;
-  padding: 2px 10px;
-  z-index: 2;
-  top: 5px;
-  left: 5px;
-  font-size: 0.8rem;
-`;
-
 function IconButton({ isOn, disabled, onClick, children, color }) {
   return (
     <Button disabled={disabled} isOn={isOn} onClick={disabled ? null : onClick}>
@@ -88,12 +75,10 @@ export default function MyVideo({
   stream,
   toggleAudio,
   toggleVideo,
-  name,
   audioIsEnabled,
   videoIsEnabled,
   audioDevices,
   videoDevices,
-  color,
 }) {
   const videoRef = useVideoCallback(stream);
   return (
@@ -127,8 +112,6 @@ export default function MyVideo({
       ) : (
         <Filler />
       )}
-
-      <NameTag color={color}>{name}</NameTag>
     </VideoContainer>
   );
 }

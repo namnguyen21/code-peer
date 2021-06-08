@@ -14,7 +14,6 @@ const colors = [
   "#a4569a",
   "#637983",
 ];
-
 const client = redis.createClient(process.env.REDIS_ENDPOINT);
 client.auth(process.env.REDIS_PASSWORD);
 

@@ -181,18 +181,15 @@ export default function VoiceAndVideo({
     myPeer.current = new Peer();
     myPeer.current.on("open", (myId) => {
       myPeerId.current = myId;
-      socketConnection.emit("join-room", { userId: myId, roomId, name, color });
+      socketConnection.emit("join-room", { userId: myId, roomId, name });
     });
-    socketConnection.on(
-      "user-connected",
-      ({ userId, name: userName, color }) => {
-        callPeer(userId, userName, myStream);
-        // callPeer(userId, userName, myVideoStream, "video");
-      }
-    );
+    socketConnection.on("user-connected", ({ userId, name: userName }) => {
+      console.log(color);
+      callPeer(userId, userName, myStream);
+    });
     myPeer.current.on("call", (incomingCall) => {
-      const { callerId, name, color } = incomingCall.metadata;
-      answerCall(incomingCall, callerId, name, color);
+      const { callerId, name } = incomingCall.metadata;
+      answerCall(incomingCall, callerId, name);
     });
 
     socketConnection.on("user-disconnected", (userId) => {
@@ -204,7 +201,7 @@ export default function VoiceAndVideo({
 
   const callPeer = (peerId, peerName, myStream) => {
     const call = myPeer.current.call(peerId, myStream, {
-      metadata: { callerId: myPeerId.current, name, color },
+      metadata: { callerId: myPeerId.current, name },
     });
     call.on("error", (err) => {
       console.log(err);
@@ -222,7 +219,7 @@ export default function VoiceAndVideo({
     });
   };
 
-  function answerCall(call, callerId, callerName, color) {
+  function answerCall(call, callerId, callerName) {
     call.answer(myStream);
     call.on("stream", (incomingStream) => {
       setPeerStreams((currentStreams) => {
@@ -231,7 +228,6 @@ export default function VoiceAndVideo({
           id: callerId,
           name: callerName,
           stream: incomingStream,
-          color,
         };
         return newState;
       });
@@ -242,6 +238,7 @@ export default function VoiceAndVideo({
     if (keys.length === 0) return null;
     return keys.map((k, i) => (
       <Video
+        key={i}
         stream={peerStreams[k].stream}
         color={peerStreams[k].color}
         name={peerStreams[k].name}
