@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { HiChatAlt2, HiMicrophone, HiVideoCamera } from "react-icons/hi";
+import { FiMicOff, FiMic, FiVideoOff, FiVideo } from "react-icons/fi";
 import useVideoCallback from "../../../hooks/useVideoCallback";
 
 const VideoContainer = styled.div`
@@ -46,7 +47,9 @@ const Button = styled.button`
   justify-content: center;
   align-items: center;
   background-color: ${(props) =>
-    props.disabled || !props.isOn ? "red" : "green"};
+    props.disabled || !props.isOn
+      ? props.theme.colors.red.main
+      : props.theme.colors.green.main};
   outline: transparent;
   border: none;
   font-size: 20px;
@@ -58,7 +61,11 @@ const Button = styled.button`
   @media (hover: hover) {
     &:hover {
       background-color: ${(props) =>
-        props.disabled ? "red" : props.isOn ? "red" : "green"};
+        props.disabled
+          ? props.theme.colors.red.main
+          : props.isOn
+          ? props.theme.colors.green.light
+          : props.theme.colors.red.light};
     }
   }
 `;
@@ -92,14 +99,22 @@ export default function MyVideo({
               isOn={audioIsEnabled}
               onClick={toggleAudio}
             >
-              <HiMicrophone />
+              {audioDevices.length === 0 || !audioIsEnabled ? (
+                <FiMicOff />
+              ) : (
+                <FiMic />
+              )}
             </IconButton>
             <IconButton
               disabled={videoDevices.length === 0}
               isOn={videoIsEnabled}
               onClick={toggleVideo}
             >
-              <HiVideoCamera />
+              {videoDevices.length === 0 || !videoIsEnabled ? (
+                <FiVideoOff />
+              ) : (
+                <FiVideo />
+              )}
             </IconButton>
             {/* <IconButton onClick={toggleAudio}>
           <HiMicrophone />

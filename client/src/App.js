@@ -14,12 +14,13 @@ const THEME = {
     paper: "#23272a",
     white: "#ffffff",
     lightGrey: "#2C2F33",
-    green: { main: "#1aff53", light: "#99ffb3" },
+    green: { main: "#52c45e", light: "#99ffb3" },
     blue: {
       main: "#7289DA",
       light: "#8699df",
     },
     pink: { main: "#FFC0CB", light: "#ffe6ea" },
+    red: { main: "#c43b3b", light: "#d95050" },
   },
 };
 
