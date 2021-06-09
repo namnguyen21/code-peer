@@ -126,4 +126,18 @@ router.post("/:id/chat", async (req, res) => {
   }
 });
 
+router.patch("/:roomID/config", async (req, res) => {
+  const { roomID } = req.params;
+  const { theme, language } = req.body;
+  try {
+    await hset(`room:${roomID}`, "theme", theme, "language", language);
+    const updated = await hgetall(`room:${roomID}`);
+    console.log(updated);
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 module.exports = router;

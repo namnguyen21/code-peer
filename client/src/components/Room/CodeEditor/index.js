@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/edit/matchbrackets";
@@ -101,8 +102,6 @@ export default function CodeEditor({
     modesRef.current.find((m) => m.display === initialLanguage)
   );
 
-  console.log(mode);
-
   useEffect(() => {
     const ydoc = new Y.Doc();
     const provider = new WebrtcProvider(`peer-code-${roomId}`, ydoc, {
@@ -146,22 +145,33 @@ export default function CodeEditor({
     }
   }, [theme]);
 
-  function handleChange(editor, data, value) {
+  const handleChange = (editor, data, value) => {
     setEditorValue(value);
-  }
+  };
 
-  function handleThemeChange(theme) {
-    setTheme(theme);
-    socket.emit("theme-change", { roomId, theme: theme.value });
+  function handleThemeChange(t) {
+    setTheme(t);
+    socket.emit("theme-change", { roomId, theme: t.value });
+    updateSettings(t.display, mode.display);
   }
 
   function handleModeChange(lang) {
     setMode(lang);
     socket.emit("mode-change", { roomId, mode: lang.value });
+    updateSettings(theme.display, lang.display);
   }
 
   const onInvite = () => {
     setInviteModalOpen(true);
+  };
+
+  const updateSettings = async (t, l) => {
+    await axios.patch(
+      process.env.NODE_ENV === "development"
+        ? `http://localhost:8080/room/${roomId}/config`
+        : `${process.env.REACT_APP_API_URL}/room/${roomId}/config`,
+      { theme: t, language: l }
+    );
   };
 
   return (
