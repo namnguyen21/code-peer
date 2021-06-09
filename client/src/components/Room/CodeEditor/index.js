@@ -67,17 +67,10 @@ export default function CodeEditor({
   color,
   settingsRef,
   setInviteModalOpen,
+  initialTheme,
+  initialLanguage,
 }) {
   const [editorValue, setEditorValue] = useState("");
-  const [theme, setTheme] = useState({
-    display: "Base16 Light",
-    value: "base16-light",
-    type: "light",
-  });
-  const [mode, setMode] = useState({
-    display: "JavaScript",
-    value: "javascript",
-  });
   const modesRef = useRef([
     { display: "JavaScript", value: "javascript" },
     { display: "Python", value: "python" },
@@ -99,7 +92,17 @@ export default function CodeEditor({
     { display: "Elegant", value: "elegant", type: "light" },
     { display: "Base16 Light", value: "base16-light", type: "light" },
   ]);
+
   const editorRef = useRef();
+  const [theme, setTheme] = useState(
+    themesRef.current.find((t) => t.display === initialTheme)
+  );
+  const [mode, setMode] = useState(
+    modesRef.current.find((m) => m.display === initialLanguage)
+  );
+
+  console.log(mode);
+
   useEffect(() => {
     const ydoc = new Y.Doc();
     const provider = new WebrtcProvider(`peer-code-${roomId}`, ydoc, {

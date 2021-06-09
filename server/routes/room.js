@@ -5,6 +5,8 @@ const { promisify } = require("util");
 require("dotenv").config();
 
 const HOURS_TILL_EXPIRATION = 24;
+const BASE_THEME = "Base16 Light";
+const BASE_LANGUAGE = "Python";
 
 const colors = [
   "#7289da",
@@ -21,12 +23,13 @@ client.on("error", (err) => {
   console.log(err);
 });
 
-const setex = promisify(client.setex).bind(client);
 const exists = promisify(client.exists).bind(client);
-const increment = promisify(client.incr).bind(client);
 const rpush = promisify(client.rpush).bind(client);
 const lrange = promisify(client.lrange).bind(client);
 const expire = promisify(client.expire).bind(client);
+const hset = promisify(client.hset).bind(client);
+const hgetall = promisify(client.hgetall).bind(client);
+const hincrby = promisify(client.hincrby).bind(client);
 
 async function createUniqueID(req, res, next) {
   const id = uuid();
@@ -47,30 +50,45 @@ async function createUniqueID(req, res, next) {
 
 // creating a new room
 router.get("/create", createUniqueID, async (req, res) => {
-  const newID = uuid();
+  const newID = req.uuid;
+
   try {
-    await setex(`members:${newID}`, 3600 * HOURS_TILL_EXPIRATION, 0);
+    await hset(
+      `room:${newID}`,
+      "members",
+      0,
+      "theme",
+      BASE_THEME,
+      "language",
+      BASE_LANGUAGE
+    );
     res.json({ roomID: newID });
   } catch (err) {
-    if (err) {
-      res.sendStatus(500);
-      throw err;
-    }
+    console.log(err);
+    res.sendStatus(500);
   }
+
+  // try {
+  //   await setex(`members:${newID}`, 3600 * HOURS_TILL_EXPIRATION, 0);
+  //   res.json({ roomID: newID });
+  // } catch (err) {
+  //   if (err) {
+  //     res.sendStatus(500);
+  //     throw err;
+  //   }
+  // }
 });
 
 router.get("/join/:roomID", async (req, res) => {
   const { roomID } = req.params;
 
   try {
-    const result = await exists(`members:${roomID}`);
-    if (result === 0) {
-      res.json({ error: "Not a valid room." });
-    } else {
-      const numOfMembers = await increment(`members:${roomID}`);
-      console.log(numOfMembers);
-      const color = colors[(numOfMembers % 6) - 1];
-      res.json({ color: color });
+    const doesExist = await exists(`room:${roomID}`);
+    if (doesExist === 1) {
+      await hincrby(`room:${roomID}`, "members", 1);
+      const roomInfo = await hgetall(`room:${roomID}`);
+      const assignedColor = colors[(parseInt(roomInfo.members) % 6) - 1];
+      res.json({ ...roomInfo, color: assignedColor });
     }
   } catch (err) {
     console.log(err);

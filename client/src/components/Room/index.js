@@ -10,7 +10,7 @@ import PromptModal from "./Modals/PromptModal";
 import InviteModal from "./Modals/InviteModal";
 import Tooltip from "../util/Tooltip";
 import useInput from "../../hooks/useInput";
-import useValidRoom from "../../hooks/useValidRoom";
+import useJoinRoom from "../../hooks/useJoinRoom";
 import useOpenElement from "../../hooks/useOpenElement";
 
 const Container = styled.main`
@@ -73,7 +73,7 @@ export default function Index() {
   const [inviteModalOpen, setInviteModalOpen] = useOpenElement(false);
 
   const name = useInput("");
-  const { isValidRoom, color } = useValidRoom(roomId);
+  const { isValidRoom, color, language, theme } = useJoinRoom(roomId);
 
   const settingsRef = useCallback((node) => {
     if (!node) return;
@@ -113,6 +113,8 @@ export default function Index() {
           name={name.value}
           color={color}
           setInviteModalOpen={setInviteModalOpen}
+          initialTheme={theme}
+          initialLanguage={language}
         ></CodeEditor>
       </CodeContainer>
 

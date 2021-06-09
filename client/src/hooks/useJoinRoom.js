@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const useValidRoom = (roomID) => {
+const useJoinRoom = (roomID) => {
   const [isValidRoom, setIsValidRoom] = useState(null);
-  const [color, setColor] = useState("");
+  const [config, setConfig] = useState({
+    color: undefined,
+    theme: undefined,
+    language: undefined,
+  });
 
   useEffect(() => {
     axios
@@ -12,17 +16,20 @@ const useValidRoom = (roomID) => {
           ? `http://localhost:8080/room/join/${roomID}`
           : `${process.env.REACT_APP_API_URL}/room/join/${roomID}`
       )
-      .then((response) => {
-        if (response.data.error) {
+      .then(({ data }) => {
+        if (data.error) {
           setIsValidRoom(false);
         } else {
           setIsValidRoom(true);
-          setColor(response.data.color);
+          setConfig({
+            theme: data.theme,
+            language: data.language,
+            color: data.color,
+          });
         }
       });
   }, []);
-
-  return { isValidRoom, color };
+  return { isValidRoom, ...config };
 };
 
-export default useValidRoom;
+export default useJoinRoom;
