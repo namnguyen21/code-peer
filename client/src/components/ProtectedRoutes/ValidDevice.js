@@ -23,7 +23,7 @@ export default function ValidDevice({ component }) {
     );
   }, []);
   if (isMobileDevice === true) {
-    return <Redirect to="/404" />;
+    return <Redirect to="/404/mobile" />;
   } else if (isMobileDevice === false) {
     return component;
   } else {

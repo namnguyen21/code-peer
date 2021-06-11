@@ -7,7 +7,11 @@ const Container = styled.div`
   top: 15%;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(1.265 * 350px);
+  width: 450px;
+  @media (max-width: 800px) {
+    width: 100%;
+    padding: 0 20px;
+  }
 `;
 
 export default function Component({ children }) {
@@ -21,7 +25,7 @@ export default function Component({ children }) {
   };
   return (
     <Container>
-      <Lottie height={350} width={1.265 * 350} options={animationOptions} />
+      <Lottie options={animationOptions} />
       {children}
     </Container>
   );

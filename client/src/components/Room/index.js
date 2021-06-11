@@ -79,13 +79,13 @@ export default function Index() {
     if (!node) return;
     setTopBarHeight(node.getBoundingClientRect().height);
   }, []);
-
+  console.log(isValidRoom);
   if (isValidRoom === null) {
     return <Container></Container>;
   }
 
   if (isValidRoom === false) {
-    return <Redirect to="/404" />;
+    return <Redirect to="/404/invalid-room" />;
   }
 
   if (!hasJoined)
