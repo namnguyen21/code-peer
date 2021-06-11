@@ -1,22 +1,28 @@
 import styled from "styled-components";
+import Lottie from "react-lottie";
+import Animation from "../../assets/404-animation.json";
 
 const Container = styled.div`
   position: absolute;
-  top: 20%;
+  top: 15%;
   left: 50%;
   transform: translateX(-50%);
+  width: calc(1.265 * 350px);
 `;
 
-const H1 = styled.h1`
-  color: ${(props) => props.theme.colors.white};
-  font-size: 40px;
-  text-align: center;
-`;
-
-export default function Component() {
+export default function Component({ children }) {
+  const animationOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: Animation,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
   return (
     <Container>
-      <H1>Sorry, that room doesn't exist.</H1>
+      <Lottie height={350} width={1.265 * 350} options={animationOptions} />
+      {children}
     </Container>
   );
 }

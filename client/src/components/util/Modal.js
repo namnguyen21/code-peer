@@ -15,8 +15,13 @@ const StyledModal = styled(ReactModal)`
     border: none;
   }
 `;
-
-export default function Modal({ isOpen, children, shouldCloseOnOverlayClick, onRequestClose }) {
+ReactModal.setAppElement("#root");
+export default function Modal({
+  isOpen,
+  children,
+  shouldCloseOnOverlayClick,
+  onRequestClose,
+}) {
   return (
     <StyledModal
       style={{

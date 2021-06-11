@@ -7,11 +7,12 @@ import Nav from "./components/Nav";
 import Room from "./components/Room";
 import Home from "./components/Home";
 import RoomCreate from "./components/RoomCreate";
-import ErrorPage from "./components//Errors/404";
+import InvalidRoomErrorPage from "./components//Errors/InvalidRoom";
+import MobileErrorPage from "./components/Errors/Mobile";
 
 const THEME = {
   colors: {
-    paper: "#23272a",
+    paper: "#191c1f",
     white: "#ffffff",
     lightGrey: "#2C2F33",
     green: { main: "#52c45e", light: "#99ffb3" },
@@ -31,13 +32,13 @@ const Main = styled.div`
 `;
 
 function App() {
-  console.log(process.env);
   return (
     <ThemeProvider theme={THEME}>
-      <Main style={{ backgroundColor: "#23272A" }} className="App">
+      <Main style={{ backgroundColor: "#191c1f" }} className="App">
         <GlobalStyle />
-        <Nav />
+
         <Router>
+          <Nav />
           <Switch>
             <Route path="/room/create">
               <ValidDeviceRoute component={<RoomCreate />} />
@@ -45,8 +46,11 @@ function App() {
             <Route path="/room/:id">
               <ValidDeviceRoute component={<Room />} />
             </Route>
-            <Route path="/404">
-              <ErrorPage />
+            <Route path="/404/invalid-room">
+              <InvalidRoomErrorPage />
+            </Route>
+            <Route path="/404/mobile">
+              <MobileErrorPage />
             </Route>
             <Route path="/">
               <Home />

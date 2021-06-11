@@ -21,16 +21,19 @@ const Tooltip = styled.div`
   position: relative;
   display: inline-block;
   z-index: 9999999;
-  &:hover {
-    ${TooltipText} {
-      visibility: visible;
+  cursor: pointer;
+  @media (hover: hover) {
+    &:hover {
+      ${TooltipText} {
+        visibility: visible;
+      }
     }
   }
 `;
 
 export default function Component({ children, tip }) {
   return (
-    <Tooltip>
+    <Tooltip onClick={null}>
       {children}
       <TooltipText>{tip}</TooltipText>
     </Tooltip>

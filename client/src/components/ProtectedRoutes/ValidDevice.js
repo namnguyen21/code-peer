@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Redirect, Route } from "react-router";
+import { Redirect } from "react-router";
 
 export default function ValidDevice({ component }) {
   const [isMobileDevice, setIsMobileDevice] = useState();
@@ -27,6 +27,6 @@ export default function ValidDevice({ component }) {
   } else if (isMobileDevice === false) {
     return component;
   } else {
-      return <div></div>
+    return <div></div>;
   }
 }

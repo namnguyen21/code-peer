@@ -15,7 +15,7 @@ const PopupAnimation = keyframes`
 `;
 
 const Container = styled.section`
-  width: 1000px;
+  width: 600px;
   perspective: 1200px;
   position: relative;
 `;

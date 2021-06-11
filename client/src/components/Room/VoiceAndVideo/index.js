@@ -76,6 +76,7 @@ const BarButton = styled.button`
   font-size: 1rem;
   transition: all 0.2s;
   cursor: pointer;
+  z-index: 99999999;
   @media (hover: hover) {
     &:hover {
       color: ${(props) => props.theme.colors.green.main};
