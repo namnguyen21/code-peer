@@ -18,6 +18,7 @@ const Container = styled.button`
   &:hover {
     background-color: ${(props) => props.theme.colors.blue.light};
   }
+  position: relative;
 `;
 
 export default function Button({ children, onClick, fontSize }) {

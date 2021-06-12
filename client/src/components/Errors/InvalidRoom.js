@@ -1,8 +1,11 @@
 import ErrorPage from "./404.js";
 import styled from "styled-components";
+import { Redirect } from "react-router-dom";
 
 import Link from "../util/Link";
 import Button from "../util/Button";
+import useCreateRoom from "../../hooks/useCreateRoom";
+import Loader from "../util/LoadingOverlay";
 
 const Message = styled.p`
   font-size: 1.5rem;
@@ -21,6 +24,8 @@ const ButtonContainer = styled.div`
 `;
 
 export default function InvalidRoom() {
+  const { isLoading, roomID, onCreateRoom } = useCreateRoom();
+  if (roomID.length > 0) return <Redirect to={`/room/${roomID}`} />;
   return (
     <ErrorPage>
       <Message>Looks like you tried to join a room that doesn't exist!</Message>
@@ -28,9 +33,9 @@ export default function InvalidRoom() {
         <Link to="/">
           <Button>Go Home</Button>
         </Link>
-        <Link to="/room/create">
-          <Button>Create a Room</Button>
-        </Link>
+        <Button onClick={onCreateRoom}>
+          {isLoading ? <Loader /> : null}Create a Room
+        </Button>
       </ButtonContainer>
     </ErrorPage>
   );

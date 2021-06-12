@@ -92,7 +92,7 @@ export default function MyVideo({
     <VideoContainer>
       {stream ? (
         <>
-          <Video autoPlay ref={videoRef} />
+          <Video autoPlay muted ref={videoRef} />
           <ButtonContainer>
             <IconButton
               disabled={audioDevices.length === 0}

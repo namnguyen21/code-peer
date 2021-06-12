@@ -6,7 +6,6 @@ import ValidDeviceRoute from "./components/ProtectedRoutes/ValidDevice";
 import Nav from "./components/Nav";
 import Room from "./components/Room";
 import Home from "./components/Home";
-import RoomCreate from "./components/RoomCreate";
 import InvalidRoomErrorPage from "./components//Errors/InvalidRoom";
 import MobileErrorPage from "./components/Errors/Mobile";
 
@@ -40,9 +39,6 @@ function App() {
         <Router>
           <Nav />
           <Switch>
-            <Route path="/room/create">
-              <ValidDeviceRoute component={<RoomCreate />} />
-            </Route>
             <Route path="/room/:id">
               <ValidDeviceRoute component={<Room />} />
             </Route>

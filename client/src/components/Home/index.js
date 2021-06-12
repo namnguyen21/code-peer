@@ -1,7 +1,10 @@
 import React from "react";
 import styled from "styled-components";
+import { Redirect } from "react-router-dom";
 
 import Link from "../util/Link";
+import Loader from "../util/LoadingOverlay";
+import useCreateRoom from "../../hooks/useCreateRoom";
 
 const Container = styled.section`
   background-color: ${(props) => props.theme.colors.paper};
@@ -61,6 +64,7 @@ const CtaButton = styled.button`
     -webkit-transition: all 0.4s ease-in-out;
     transition: all 0.4s ease-in-out;
   }
+  position: relative;
 `;
 
 const Heading = styled.h1`
@@ -98,6 +102,12 @@ const SmallText = styled.p`
 `;
 
 export default function Index() {
+  const { isLoading, onCreateRoom, roomID } = useCreateRoom();
+
+  if (roomID.length > 0) {
+    return <Redirect to={`/room/${roomID}`} />;
+  }
+
   return (
     <Container>
       <HeroSection>
@@ -108,8 +118,10 @@ export default function Index() {
           Quickly create and join rooms, and start coding.
         </SubHeading>
         <CtaContainer>
-          <CtaButton>
-            <Link to="/room/create">Create a Room</Link>
+          <CtaButton onClick={onCreateRoom}>
+            {isLoading ? <Loader /> : null}
+            Create a Room
+            {/* <Link to="/room/create">Create a Room</Link> */}
           </CtaButton>
           <SmallText>* Currently unavailable on mobile devices</SmallText>
         </CtaContainer>
