@@ -36,7 +36,8 @@ Code Peer's development came as the result of need for an all-in-one solution fo
 <a name="technological-issues-and-solutionsy"/>
 
 ## Technological Issues and Solutions
-<a name="collaborative-editing/>
+
+<a name="collaborative-editing"/>
 
 1. Collaborative text editing: **Operational Transform (OT)** vs **Conflict-Free Replicated Data Types (CRDT)**
    1. Operational Transform
@@ -44,8 +45,8 @@ Code Peer's development came as the result of need for an all-in-one solution fo
       - Treats changes to the document as individual operations i.e. *insert, delete, etc.*
       - A record of operations is kept to evaluate concurrent operations. Concurrent operations are then transformed to adjust for prior adjustments to the document.
    2. Conflict Free Replicated Data Types
-      1. Does not require a central server and can instead be implemented using peer-to-peer technology.
-      2. Treats individual characters as globally unique items with unique identifiers. Operations on these items are then conflict-free.
+      - Does not require a central server and can instead be implemented using peer-to-peer technology.
+      - Treats individual characters as globally unique items with unique identifiers. Operations on these items are then conflict-free.
 
 *Code Peer utilizes CRDT technology to achieve its collaborative editing. Its peer-to-peer capabilities aligns with the application's vision of keeping server requirements minimal. CRDT is highly scalable as connections are made from client to client.*
 <a name="data-persistence"/>
